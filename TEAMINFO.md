@@ -38,7 +38,7 @@ das Problem unübersichtlicher Selbstorganisation.
 
 ## Repository
 
-- **URL:** <https://github.com/…  bzw.  https://git.thm.de/…>
+- **URL:** https://github.com/nura203/wk1106-wirtschaftsinformatik-projekt-1.git
 - **Sichtbarkeit:** öffentlich · privat (Betreuer als Member: `carstenlucke` / `clucke`)
 
 ## Eingesetzte KI-Werkzeuge (vorläufige Planung)
