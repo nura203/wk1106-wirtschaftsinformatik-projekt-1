@@ -6,7 +6,7 @@ Study Planer
 
 ## Kurzbeschreibung
 
-Der Study Planer ist eine Software zur sturkturierten Planung von Prüfungen, Lernzielen und akademischen Abgaaben. Er richtet sich primär an Studierende,
+Der Study Planer ist eine Software zur sturkturierten Planung von Prüfungen, Lernzielen und akademischen Abgaben. Er richtet sich primär an Studierende,
 und unterstützt sie dabei, ihre Aufgaben effizient zu organisieren und zu prioritiesieren. Durch die automatische Erstellung von Lernplänen und die Hervorhebung dringender Aufgaben löst die Anwendung
 das Problem unübersichtlicher Selbstorganisation.
 
