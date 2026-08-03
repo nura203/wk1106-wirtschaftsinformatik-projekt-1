@@ -11,18 +11,13 @@ F3 listet alle Systemfunktionen — also die systeminternen Verarbeitungsschritt
 | AF-01 | Lernplan berechnen | Planung | Muss | UC-04, UC-05, UC-06, UC-09 |
 | AF-02 | Dringlichkeit berechnen (UrgencyLevel) | Planung | Muss | UC-07 |
 | AF-03 | TaskStatus aus Fortschritt ableiten | Tracking | Muss | UC-09 |
-| AF-04 | Nutzer registrieren | Auth | Muss | UC-01 |
-| AF-05 | JWT ausstellen | Auth | Muss | UC-01, UC-02 |
-| AF-06 | JWT validieren | Auth | Muss | UC-02–UC-11 |
 | AF-07 | Ownership prüfen | Auth | Muss | UC-05, UC-06, UC-09 |
-| AF-08 | Aufgabe persistieren | Aufgaben | Muss | UC-04, UC-05, UC-06 |
-| AF-09 | LearningSession persistieren | Tracking | Soll | UC-09 |
 | AF-10 | Reminder-Regeln auswerten (Scheduler) | Erinnerung | Soll | — |
 | AF-11 | E-Mail-Benachrichtigung versenden | Erinnerung | Kann | — |
 | AF-12 | iCal-Datei generieren | Export | Kann | UC-11 |
 
 Prioritätslegende: **Muss** — ohne diese Funktion ist die Anwendung nicht abgabefähig. **Soll** — im Normalfall implementiert. **Kann** — nach Kapazität.
-
+Hinweis: Die IDs AF-04, AF-05, AF-06, AF-08 und AF-09 wurden gestrichen. Die verbleibenden IDs bleiben stabil und werden nicht umbenannt.
 ---
 
 ## F3.2 Funktionsbeschreibungen
@@ -84,36 +79,6 @@ Ausgabe: LearningPlanDTO mit WeekEntryDTO je Tag (Mo–So)
 
 ---
 
-### AF-04 — Nutzer registrieren
-
-**Zweck:** Neues Nutzerkonto anlegen; Passwort niemals im Klartext persistieren.
-
-**Schritte:** Eingabe validieren → E-Mail-Eindeutigkeit prüfen → Passwort mit bcrypt (Kostenfaktor 12) hashen → User-Datensatz persistieren → JWT ausstellen (→ AF-05).
-
-**Querverweise:** UC-01; NFR-12-01; D1 Entität USER.
-
----
-
-### AF-05 — JWT ausstellen
-
-**Zweck:** Signiertes JWT für eine authentifizierte Sitzung erzeugen.
-
-**Parameter:** Subject = `userId`; Ablauf = 24 h; Algorithmus = HS256; Secret = Umgebungsvariable `JWT_SECRET`.
-
-**Querverweise:** UC-01, UC-02; N2 Authentifizierung; NFR-12-02.
-
----
-
-### AF-06 — JWT validieren
-
-**Zweck:** Alle eingehenden API-Requests (außer `/auth/*`) auf gültige Signatur und Ablaufdatum prüfen.
-
-**Implementierung:** Spring Security `JwtAuthenticationFilter`; bei Fehler: HTTP 401.
-
-**Querverweise:** UC-02–UC-11; N2 Authentifizierung.
-
----
-
 ### AF-07 — Ownership prüfen
 
 **Zweck:** Sicherstellen, dass ein Nutzer nur auf eigene Ressourcen zugreift.
@@ -121,22 +86,6 @@ Ausgabe: LearningPlanDTO mit WeekEntryDTO je Tag (Mo–So)
 **Implementierung:** Service-Schicht vergleicht `userId` aus JWT mit `task.userId`; bei Abweichung: HTTP 403.
 
 **Querverweise:** NFR-12-03; UC-05, UC-06, UC-09.
-
----
-
-### AF-08 — Aufgabe persistieren
-
-**Zweck:** Neue oder geänderte Aufgabe in die Datenbank schreiben; anschließend AF-01 auslösen.
-
-**Querverweise:** D1 Entität TASK; UC-04, UC-05, UC-06.
-
----
-
-### AF-09 — LearningSession persistieren
-
-**Zweck:** Gelernte Stunden und Notizen einer Lernsession protokollieren; `actualHours` auf TASK aktualisieren.
-
-**Querverweise:** D1 Entität LEARNING_SESSION; UC-09.
 
 ---
 
