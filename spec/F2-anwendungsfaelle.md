@@ -40,7 +40,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Die E-Mail-Adresse ist noch nicht im System registriert. |
 | **Nachbedingung (Erfolg)** | Nutzerkonto angelegt; authentifizierte Sitzung aktiv; Nutzer auf Dashboard weitergeleitet. |
 | **Nachbedingung (Misserfolg)** | Kein Konto angelegt; Fehlermeldung angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet das Registrierungsformular. 2. Nutzer gibt Benutzername, E-Mail-Adresse und Passwort ein. 3. System validiert Eingaben (E-Mail-Format; Passwort ≥ 8 Zeichen). 4. System prüft, ob die E-Mail-Adresse bereits existiert. 5. System speichert das Konto (Passwort als bcrypt-Hash). 6. System stellt einen JWT aus und leitet den Nutzer auf das Dashboard weiter. |
+| **Hauptszenario** | 1. Nutzer öffnet das Registrierungsformular.<br> 2. Nutzer gibt Benutzername, E-Mail-Adresse und Passwort ein. <br>3. System validiert Eingaben (E-Mail-Format; Passwort ≥ 8 Zeichen).<br> 4. System prüft, ob die E-Mail-Adresse bereits existiert. <br>5. System speichert das Konto (Passwort als bcrypt-Hash).<br> 6. System stellt einen JWT aus und leitet den Nutzer auf das Dashboard weiter. |
 | **Alternative Szenarien** | — |
 | **Ausnahmeszenarien** | *E-Mail bereits vergeben:* System zeigt Fehlermeldung; kein Konto angelegt; Nutzer kann eine andere Adresse eingeben. *Validierungsfehler:* betroffene Felder werden markiert; kein Request abgesendet. |
 | **Qualitäten** | NFR-12-1 (Passwort-Hash); NFR-15-2 (Inline-Validierung). |
@@ -59,7 +59,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Nutzerkonto existiert. |
 | **Nachbedingung (Erfolg)** | JWT im Client gespeichert; Nutzer auf Dashboard. |
 | **Nachbedingung (Misserfolg)** | Keine Sitzung; generische Fehlermeldung angezeigt. |
-| **Hauptszenario** | 1. System zeigt Login-Formular. 2. Nutzer gibt E-Mail und Passwort ein. 3. System prüft Credentials gegen Datenbank. 4. System stellt JWT aus (Gültigkeit: 24 h). 5. Client speichert JWT. 6. Weiterleitung auf Dashboard. |
+| **Hauptszenario** | 1. System zeigt Login-Formular.<br> 2. Nutzer gibt E-Mail und Passwort ein.<br> 3. System prüft Credentials gegen Datenbank. <br>4. System stellt JWT aus (Gültigkeit: 24 h).<br> 5. Client speichert JWT. <br>6. Weiterleitung auf Dashboard. |
 | **Alternative Szenarien** | — |
 | **Ausnahmeszenarien** | *Falsche Credentials:* generische Fehlermeldung ohne Hinweis, ob E-Mail oder Passwort falsch ist. *Konto existiert nicht:* gleiche generische Meldung (kein Information-Leakage). |
 | **Qualitäten** | NFR-12-02 (JWT-Validierung); NFR-12-05 (keine differenzierte Fehlermeldung bei falschen Credentials). |
@@ -77,7 +77,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Authentifizierte Sitzung aktiv. |
 | **Nachbedingung** | JWT im Client gelöscht; Nutzer auf Login-Seite weitergeleitet. |
-| **Hauptszenario** | 1. Nutzer klickt „Abmelden". 2. System löscht JWT im Client. 3. Weiterleitung auf Login-Seite. |
+| **Hauptszenario** | 1. Nutzer klickt „Abmelden". <br>2. System löscht JWT im Client.<br> 3. Weiterleitung auf Login-Seite. |
 | **Alternative Szenarien** | — |
 | **Ausnahmeszenarien** | — |
 | **Qualitäten** | — |
@@ -98,7 +98,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Authentifizierte Sitzung. |
 | **Nachbedingung (Erfolg)** | Aufgabe gespeichert; Lernplan neu berechnet; Aufgabe erscheint sofort im Dashboard. |
 | **Nachbedingung (Misserfolg)** | Keine Aufgabe angelegt; Validierungsfehler angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgaben-Anlegen-Formular. 2. Nutzer wählt Aufgabentyp (EXAM / ASSIGNMENT / GOAL). 3. System zeigt typ-spezifische Felder (vgl. D2). 4. Nutzer füllt Pflichtfelder aus (mindestens: Titel, Deadline). 5. Nutzer speichert. 6. System validiert Eingaben gegen das Typ-Schema. 7. System persistiert Aufgabe und berechnet Lernplan neu. 8. Nutzer wird auf Dashboard oder Aufgabenliste weitergeleitet. |
+| **Hauptszenario** | 1. Nutzer öffnet Aufgaben-Anlegen-Formular.<br> 2. Nutzer wählt Aufgabentyp (EXAM / ASSIGNMENT / GOAL). <br>3. System zeigt typ-spezifische Felder (vgl. D2).<br> 4. Nutzer füllt Pflichtfelder aus (mindestens: Titel, Deadline). <br>5. Nutzer speichert.<br> 6. System validiert Eingaben gegen das Typ-Schema.<br> 7. System persistiert Aufgabe und berechnet Lernplan neu. <br>8. Nutzer wird auf Dashboard oder Aufgabenliste weitergeleitet. |
 | **Alternative Szenarien** | *Nutzer bricht ab:* nichts wird gespeichert. |
 | **Ausnahmeszenarien** | *Pflichtfeld leer:* betroffenes Feld wird markiert; kein Speichern möglich. *Datum in der Vergangenheit:* Warnung wird angezeigt, Speichern aber erlaubt (weiche Regel). |
 | **Qualitäten** | NFR-15-2 (Inline-Validierung); F-03-03 (Plan-Neuberechnung). |
@@ -117,7 +117,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert und gehört dem Nutzer. |
 | **Nachbedingung (Erfolg)** | Geänderte Felder persistiert; Lernplan neu berechnet. |
 | **Nachbedingung (Misserfolg)** | Ursprüngliche Daten unverändert; Validierungsfehler angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. 2. Nutzer klickt „Bearbeiten". 3. Formular wird mit bestehenden Werten befüllt. 4. Nutzer ändert Felder. 5. Nutzer speichert. 6. System validiert und persistiert Änderungen. 7. System berechnet Lernplan neu. |
+| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. <br>2. Nutzer klickt „Bearbeiten". <br>3. Formular wird mit bestehenden Werten befüllt.<br> 4. Nutzer ändert Felder.<br> 5. Nutzer speichert.<br> 6. System validiert und persistiert Änderungen. <br>7. System berechnet Lernplan neu. |
 | **Alternative Szenarien** | *Nutzer verlässt Formular ohne Speichern:* Änderungen werden verworfen. |
 | **Ausnahmeszenarien** | *Zugriff auf fremde Aufgabe:* HTTP 403; Nutzer wird auf eigene Aufgabenliste weitergeleitet. *Validierungsfehler:* betroffene Felder markiert; kein Speichern. |
 | **Qualitäten** | NFR-12-3 (Ownership-Prüfung); F-03-03 (Plan-Neuberechnung). |
@@ -135,7 +135,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert und gehört dem Nutzer. |
 | **Nachbedingung** | Aufgabe und zugehörige Lernsessions aus Datenbank entfernt; Lernplan neu berechnet. |
-| **Hauptszenario** | 1. Nutzer klickt „Löschen". 2. System zeigt Bestätigungsdialog (irreversible Aktion). 3. Nutzer bestätigt. 4. System löscht Aufgabe inkl. Subtasks und Learning Sessions. 5. Lernplan wird neu berechnet. |
+| **Hauptszenario** | 1. Nutzer klickt „Löschen".<br> 2. System zeigt Bestätigungsdialog (irreversible Aktion). <br>3. Nutzer bestätigt.<br> 4. System löscht Aufgabe inkl. Subtasks und Learning Sessions. <br>5. Lernplan wird neu berechnet. |
 | **Alternative Szenarien** | *Nutzer bricht Bestätigung ab:* nichts verändert sich. |
 | **Ausnahmeszenarien** | *Zugriff auf fremde Aufgabe:* HTTP 403. |
 | **Qualitäten** | Kein Soft-Delete im MVP; Löschung ist permanent (P1, NG-07). |
@@ -155,7 +155,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Authentifizierte Sitzung. |
 | **Nachbedingung** | Kein Zustandswechsel. |
-| **Hauptszenario** | 1. Nutzer öffnet Dashboard. 2. System lädt alle offenen Aufgaben des Nutzers. 3. System berechnet Dringlichkeit je Aufgabe (UrgencyLevel: RED / YELLOW / GREEN). 4. System zeigt Aufgabenkarten sortiert nach Deadline, mit Ampelfarbe und Fortschrittsbalken. 5. System zeigt Zusammenfassung: „X Aufgaben diese Woche". |
+| **Hauptszenario** | 1. Nutzer öffnet Dashboard. <br>2. System lädt alle offenen Aufgaben des Nutzers.<br> 3. System berechnet Dringlichkeit je Aufgabe (UrgencyLevel: RED / YELLOW / GREEN).<br> 4. System zeigt Aufgabenkarten sortiert nach Deadline, mit Ampelfarbe und Fortschrittsbalken.<br> 5. System zeigt Zusammenfassung: „X Aufgaben diese Woche". |
 | **Alternative Szenarien** | *Nutzer hat keine Aufgaben:* leerer Zustand mit Hinweis „Neue Aufgabe anlegen". *Nutzer klickt auf Aufgabe:* navigiert zu Aufgabendetail. |
 | **Ausnahmeszenarien** | — |
 | **Qualitäten** | NFR-11-1 (Ladezeit < 2 s); NFR-15-1 (Responsive Design). Ampelregel: RED ≤ 3 Tage, YELLOW ≤ 7 Tage, GREEN > 7 Tage. |
@@ -173,7 +173,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Authentifizierte Sitzung; mindestens eine offene Aufgabe vorhanden. |
 | **Nachbedingung** | Kein Zustandswechsel. |
-| **Hauptszenario** | 1. Nutzer öffnet Lernplan-Ansicht. 2. System berechnet aktuellen Plan (Priorisierungsalgorithmus, vgl. D2 `LearningPlanDTO`). 3. System zeigt Wochenansicht: je Tag eine Spalte mit empfohlenen Aufgaben und Minutenangabe. 4. Nutzer kann mit Vor-/Zurück-Navigation zwischen Kalenderwochen wechseln. |
+| **Hauptszenario** | 1. Nutzer öffnet Lernplan-Ansicht.<br> 2. System berechnet aktuellen Plan (Priorisierungsalgorithmus, vgl. D2 `LearningPlanDTO`). <br>3. System zeigt Wochenansicht: je Tag eine Spalte mit empfohlenen Aufgaben und Minutenangabe.<br> 4. Nutzer kann mit Vor-/Zurück-Navigation zwischen Kalenderwochen wechseln. |
 | **Alternative Szenarien** | *Keine offenen Aufgaben:* leerer Zustand mit Hinweis. *Nutzer klickt „Plan neu berechnen":* System ruft `POST /api/v1/plan/recalculate` auf und aktualisiert die Ansicht. |
 | **Ausnahmeszenarien** | — |
 | **Qualitäten** | NFR-11-3 (Berechnung < 1 s); F-03-01 (Priorisierungsalgorithmus). |
@@ -194,7 +194,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Authentifizierte Sitzung; Aufgabe im Status OPEN oder IN_PROGRESS. |
 | **Nachbedingung (Erfolg)** | Fortschritt persistiert; Status ggf. automatisch auf IN_PROGRESS oder DONE gesetzt; Lernplan neu berechnet. |
 | **Nachbedingung (Misserfolg)** | Ursprünglicher Fortschritt unverändert. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. 2. Nutzer bewegt Fortschritts-Schieberegler (0–100 %). 3. Optional: Nutzer trägt Lerndauer (Minuten) und Notiz ein. 4. Nutzer speichert. 5. System persistiert Fortschritt und ggf. neue LearningSession. 6. System aktualisiert TaskStatus automatisch aus progressPercent. 7. System berechnet Lernplan neu. |
+| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. <br>2. Nutzer bewegt Fortschritts-Schieberegler (0–100 %).<br> 3. Optional: Nutzer trägt Lerndauer (Minuten) und Notiz ein.<br> 4. Nutzer speichert. <br>5. System persistiert Fortschritt und ggf. neue LearningSession.<br> 6. System aktualisiert TaskStatus automatisch aus progressPercent. <br>7. System berechnet Lernplan neu. |
 | **Alternative Szenarien** | *Fortschritt = 100 %:* Aufgabe wird automatisch als DONE markiert; erscheint auf Dashboard ausgegraut. |
 | **Ausnahmeszenarien** | *Ungültige Minutenangabe (≤ 0):* Validierungsfehler; keine Session gespeichert. |
 | **Qualitäten** | AF-09 (LearningSession persistieren); Statusübergang folgt dynamisch dem progressPercent — Änderungen in beide Richtungen erlaubt (vgl. D2 TaskStatus). |
@@ -215,7 +215,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert. |
 | **Nachbedingung (Erfolg)** | Erinnerungsregel gespeichert. |
 | **Nachbedingung (Misserfolg)** | Keine Änderung. |
-| **Hauptszenario** | 1. Nutzer öffnet Erinnerungskonfiguration. 2. Nutzer wählt Vorlaufzeit (Tage vor Deadline). 3. Nutzer wählt Kanal (ReminderChannel: IN_APP / EMAIL / BOTH). 4. Nutzer speichert. 5. System persistiert Reminder-Eintrag. |
+| **Hauptszenario** | 1. Nutzer öffnet Erinnerungskonfiguration. <br>2. Nutzer wählt Vorlaufzeit (Tage vor Deadline).<br> 3. Nutzer wählt Kanal (ReminderChannel: IN_APP / EMAIL / BOTH).<br> 4. Nutzer speichert.<br> 5. System persistiert Reminder-Eintrag. |
 | **Alternative Szenarien** | *Nutzer deaktiviert Erinnerung:* `active = false` gesetzt; keine Benachrichtigung mehr. |
 | **Ausnahmeszenarien** | *E-Mail-Kanal gewählt, aber SMTP nicht konfiguriert:* System zeigt Hinweis; speichert Regel trotzdem; E-Mail-Versand bleibt stumm bis SMTP konfiguriert ist. |
 | **Qualitäten** | F-06-01 bis F-06-04; NFR-12-4 (keine Secrets im Repo). |
@@ -235,7 +235,7 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Authentifizierte Sitzung; mindestens eine Aufgabe vorhanden. |
 | **Nachbedingung** | `.ics`-Datei wird vom Browser heruntergeladen; kein Zustandswechsel im System. |
-| **Hauptszenario** | 1. Nutzer klickt Export-Button. 2. System generiert iCalendar-Datei (RFC 5545): VEVENT je Aufgabe mit DTSTART = Deadline, SUMMARY = Titel, DESCRIPTION = Beschreibung. 3. Browser lädt Datei herunter. |
+| **Hauptszenario** | 1. Nutzer klickt Export-Button.<br> 2. System generiert iCalendar-Datei (RFC 5545): VEVENT je Aufgabe mit DTSTART = Deadline, SUMMARY = Titel, DESCRIPTION = Beschreibung.<br> 3. Browser lädt Datei herunter. |
 | **Alternative Szenarien** | *Keine Aufgaben vorhanden:* leere, aber valide `.ics`-Datei wird heruntergeladen. |
 | **Ausnahmeszenarien** | — |
 | **Qualitäten** | Kompatibel mit Google Calendar, Apple Calendar, Thunderbird (RFC 5545); generiert durch AF-12. |
