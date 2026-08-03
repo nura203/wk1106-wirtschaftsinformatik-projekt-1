@@ -16,8 +16,12 @@ F3 listet alle Systemfunktionen — also die systeminternen Verarbeitungsschritt
 | AF-11 | E-Mail-Benachrichtigung versenden | Erinnerung | Kann | — |
 | AF-12 | iCal-Datei generieren | Export | Kann | UC-11 |
 
-Prioritätslegende: **Muss** — ohne diese Funktion ist die Anwendung nicht abgabefähig. **Soll** — im Normalfall implementiert. **Kann** — nach Kapazität.
-Hinweis: Die IDs AF-04, AF-05, AF-06, AF-08 und AF-09 wurden gestrichen. Die verbleibenden IDs bleiben stabil und werden nicht umbenannt.
+**Prioritätslegende:**
+- Muss — ohne diese Funktion ist die Anwendung nicht abgabefähig
+- Soll — im Normalfall implementiert
+- Kann — nach Kapazität
+
+> Die IDs AF-04, AF-05, AF-06, AF-08 und AF-09 wurden gestrichen. Die verbleibenden IDs bleiben stabil und werden nicht umbenannt.
 ---
 
 ## F3.2 Funktionsbeschreibungen
