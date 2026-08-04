@@ -1,28 +1,12 @@
 # S1 — Nachbarsysteme
 
-S1 beschreibt alle Schnittstellen des Study Planers zu externen und internen Systemen: die REST-API zwischen Frontend und Backend sowie die optionalen Außenschnittstellen.
+Ein Nachbarsystem ist ein externes System außerhalb der eigenen Anwendung. PostgreSQL ist kein Nachbarsystem — es ist eine interne Komponente. Die Nachbarsysteme des Study Planers sind: der E-Mail-Provider (SMTP) und die Kalender-App. Das Systemkontextdiagramm findet sich in P2.
 
 ---
 
-## S1.1 Systemkontext
 
-```mermaid
-graph TD
-    Browser["Browser\nReact SPA"]
-    Backend["Study-Planer Backend\nSpring Boot"]
-    DB[("PostgreSQL")]
-    SMTP["E-Mail-Provider\nSMTP optional"]
-    iCal["Kalender-App\niCal-Import optional"]
 
-    Browser -- "REST/JSON · HTTPS" --> Backend
-    Backend -- "JDBC/JPA" --> DB
-    Backend -- "SMTP · TLS" --> SMTP
-    Browser -- ".ics Download" --> iCal
-```
-
----
-
-## S1.2 REST-API (Frontend ↔ Backend)
+## S1.1 REST-API (Frontend ↔ Backend)
 
 **Basis-URL:** `http://localhost:8080/api/v1` (Entwicklung)
 
@@ -32,7 +16,7 @@ graph TD
 
 **Versionierung:** URL-basiert (`/v1/`); Änderungen an der API erfordern eine neue Versionsnummer.
 
-### S1.2.1 Authentifizierung
+### S1.1.1 Authentifizierung
 
 | Methode | Pfad | UC | Auth |
 |---------|------|----|------|
@@ -69,7 +53,7 @@ graph TD
 
 ---
 
-### S1.2.2 Aufgaben
+### S1.1.2 Aufgaben
 
 | Methode | Pfad | UC | Auth |
 |---------|------|----|------|
@@ -92,7 +76,7 @@ graph TD
 
 ---
 
-### S1.2.3 Lernplan
+### S1.1.3 Lernplan
 
 | Methode | Pfad | UC | Auth |
 |---------|------|----|------|
@@ -105,7 +89,7 @@ graph TD
 
 ---
 
-### S1.2.4 Export
+### S1.1.4 Export
 
 | Methode | Pfad | UC | Auth |
 |---------|------|----|------|
@@ -117,7 +101,7 @@ graph TD
 
 ---
 
-### S1.2.5 Fehlerantworten
+### S1.1.5 Fehlerantworten
 
 Alle Fehler folgen einem einheitlichen Format (vgl. N2.2):
 
@@ -138,23 +122,10 @@ Alle Fehler folgen einem einheitlichen Format (vgl. N2.2):
 | 404 | Nicht gefunden | Ressource existiert nicht |
 | 500 | Interner Serverfehler | Unbehandelte Exception |
 
----
-
-## S1.3 PostgreSQL (intern)
-
-| Eigenschaft | Wert |
-|-------------|------|
-| Protokoll | JDBC über Spring Data JPA / Hibernate |
-| Host | `db` (Docker-Compose-Servicename) |
-| Port | 5432 |
-| Konfiguration | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` via Umgebungsvariablen |
-| Schema-Migration | Flyway beim Start automatisch |
-
-PostgreSQL ist eine interne Komponente — kein Zugangspunkt für externe Systeme.
 
 ---
 
-## S1.4 SMTP — E-Mail-Provider (optional)
+## S1.2 SMTP — E-Mail-Provider (optional)
 
 | Eigenschaft | Wert |
 |-------------|------|
@@ -167,7 +138,7 @@ PostgreSQL ist eine interne Komponente — kein Zugangspunkt für externe System
 
 ---
 
-## S1.5 iCal-Export (Client-seitig)
+## S1.3 iCal-Schnittstelle
 
 | Eigenschaft | Wert |
 |-------------|------|
