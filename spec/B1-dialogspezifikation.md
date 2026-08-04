@@ -20,13 +20,14 @@ graph TD
 
     Login -->|UC-02 Erfolg| Dashboard
     Register -->|UC-01 Erfolg| Dashboard
-    Dashboard --> Tasks
-    Dashboard --> Plan
-    Dashboard --> TaskNew
-    Tasks --> TaskDetail
-    Tasks --> TaskNew
-    TaskDetail --> TaskEdit
-    Dashboard --> Settings
+    Dashboard -->|Aufgaben anzeigen| Tasks
+    Dashboard -->|Lernplan anzeigen| Plan
+    Dashboard -->|Neue Aufgabe| TaskNew
+    Dashboard -->|Einstellungen| Settings
+    Tasks -->|Detail anzeigen| TaskDetail
+    Tasks -->|Neue Aufgabe| TaskNew
+    TaskDetail -->|Bearbeiten| TaskEdit
+    TaskEdit -->|Speichern / Abbrechen| TaskDetail
 ```
 
 Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unauthentifizierte Zugriffe werden auf `/login` umgeleitet.
