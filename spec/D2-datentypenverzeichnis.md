@@ -4,31 +4,7 @@ D2 ist das verbindliche Typenverzeichnis des Study Planers. Alle hier definierte
 
 ---
 
-## D2.1 Einfache Typen
-
-| Name | Java-Typ | DB-Typ | TypeScript-Typ | Validierungsregeln |
-|------|----------|--------|----------------|--------------------|
-| `UserId` | `UUID` | `UUID` | `string` | UUID v4; serverseitig generiert |
-| `TaskId` | `UUID` | `UUID` | `string` | UUID v4; serverseitig generiert |
-| `Email` | `String` | `VARCHAR(255)` | `string` | RFC 5322; max. 255 Zeichen; UNIQUE in USER |
-| `Username` | `String` | `VARCHAR(100)` | `string` | 2–100 Zeichen |
-| `PasswordRaw` | `String` | — | `string` | ≥ 8 Zeichen; nur im Request-Body; niemals persistiert |
-| `PasswordHash` | `String` | `VARCHAR(60)` | — | bcrypt, 60 Zeichen; nur serverseitig |
-| `Title` | `String` | `VARCHAR(255)` | `string` | 1–255 Zeichen; Pflichtfeld |
-| `Description` | `String` | `TEXT` | `string \| null` | max. 5000 Zeichen; optional |
-| `Subject` | `String` | `VARCHAR(100)` | `string \| null` | max. 100 Zeichen; optional |
-| `Deadline` | `LocalDate` | `DATE` | `string` | ISO 8601 `YYYY-MM-DD`; Pflichtfeld |
-| `EstimatedHours` | `int` | `INTEGER` | `number` | ≥ 0; ≤ 9999; Default 0 |
-| `ActualHours` | `int` | `INTEGER` | `number` | ≥ 0; nur serverseitig gesetzt (AF-09) |
-| `ProgressPercent` | `int` | `INTEGER` | `number` | 0–100 inklusiv |
-| `Weight` | `int` | `INTEGER` | `number` | 1–10 inklusiv; Default 1 |
-| `DaysBefore` | `int` | `INTEGER` | `number` | ≥ 1 |
-| `DurationMinutes` | `int` | `INTEGER` | `number` | > 0 |
-| `JwtToken` | `String` | — | `string` | HS256-signiert; Ablauf 24 h |
-
----
-
-## D2.2 Enum-Typen
+## D2.1 Enum-Typen
 
 ### `TaskType`
 
@@ -72,9 +48,9 @@ Berechnetes, **nicht persistiertes** Attribut. Wird bei jedem Read serverseitig 
 
 ---
 
-## D2.3 Transfer-Objekte (DTOs)
+## D2.2 Transfer-Objekte (DTOs)
 
-DTOs sind die Datenstrukturen an der API-Grenze (S1). Sie sind keine Domänenobjekte und enthalten keine Geschäftslogik.
+Ein DTO (Data Transfer Object) ist ein Datenpaket das zwischen Frontend und Backend ausgetauscht wird. Es enthält nur Daten — keine Logik. Was das Frontend sendet und was das Backend antwortet ist hier verbindlich festgelegt.
 
 ### `TaskDTO` (API-Antwort)
 
@@ -142,15 +118,3 @@ interface PlanTaskDTO {
   urgency: 'RED' | 'YELLOW' | 'GREEN';  // UrgencyLevel
 }
 ```
-
----
-
-## D2.4 SQL-Enum-Definitionen
-
-```sql
-CREATE TYPE task_type        AS ENUM ('EXAM', 'ASSIGNMENT', 'GOAL');
-CREATE TYPE task_status      AS ENUM ('OPEN', 'IN_PROGRESS', 'DONE');
-CREATE TYPE reminder_channel AS ENUM ('IN_APP', 'EMAIL', 'BOTH');
-```
-
-Im Java-Backend werden diese als `@Enumerated(EnumType.STRING)` persistiert (lesbar, migrationsrobust).
