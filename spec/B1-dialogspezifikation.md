@@ -69,6 +69,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 
 **Verhalten:** Validierungsfehler werden direkt am jeweiligen Feld angezeigt (NFR-15-02). Bei Erfolg → Weiterleitung auf `/`.
 
+![Registrieren Mockup](assets/mockup-registrieren.JPG)
+
 ---
 
 ### S-03 — Dashboard (`/`)
@@ -127,6 +129,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 | Lernhistorie | Liste bisheriger Sessions (Datum, Dauer, Notiz). |
 | Bearbeiten-Button | → `/tasks/:id/edit`. |
 | Löschen-Button | Öffnet Bestätigungs-Modal (UC-06). |
+
+![Aufgabendetail Mockup](assets/mockup-aufgabendetail.JPG)
 
 ---
 
