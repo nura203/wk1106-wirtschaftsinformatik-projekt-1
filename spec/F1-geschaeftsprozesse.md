@@ -35,6 +35,18 @@ F1 beschreibt die zentralen Abläufe aus Nutzerperspektive — unabhängig von t
 
 **Nachbedingung:** Alle Aufgaben erfasst; Lernplan berechnet und einsehbar.
 
+```mermaid
+flowchart TD
+    A1[Registrieren / Anmelden] --> A2[Prüfungen anlegen]
+    A2 --> A3[Abgaben anlegen]
+    A3 --> A4[Lernziele anlegen]
+    A4 --> A5[Lernplan begutachten]
+    A5 --> A6{Erinnerungen\ngewünscht?}
+    A6 -->|Ja| A7[Erinnerungen konfigurieren]
+    A6 -->|Nein| A8([Ende])
+    A7 --> A8
+```
+
 ---
 
 ## F1.3 GP-02 — Laufende Planung und Verfolgung
@@ -60,6 +72,20 @@ F1 beschreibt die zentralen Abläufe aus Nutzerperspektive — unabhängig von t
 
 **Häufigkeit:** Wöchentlich bis täglich, je nach Prüfungsnähe.
 
+```mermaid
+flowchart TD
+    A1[Anmelden / Dashboard öffnen] --> A2[Dringende Aufgaben prüfen]
+    A2 --> A3[Lernplan ansehen]
+    A3 --> A4[Fortschritt eintragen]
+    A4 --> A5{Aufgabe anpassen\nnötig?}
+    A5 -->|Ja| A6[Aufgabe bearbeiten]
+    A5 -->|Nein| A7{Aufgabe\nerledigt?}
+    A6 --> A7
+    A7 -->|Ja| A8[Als erledigt markieren]
+    A7 -->|Nein| A9([Ende])
+    A8 --> A9
+```
+
 ---
 
 ## F1.4 GP-03 — Prüfungsphase
@@ -82,6 +108,17 @@ F1 beschreibt die zentralen Abläufe aus Nutzerperspektive — unabhängig von t
 | A6 | Plan betrachten; nächste Prüfung priorisieren | UC-08 |
 
 **Nachbedingung:** Lernzeit und Fortschritt gespeichert; Plan an tatsächlichen Stand angepasst.
+
+```mermaid
+flowchart TD
+    A1[Anmelden / Dashboard öffnen] --> A2[Tagesplan entnehmen]
+    A2 --> A3[Lernsession starten]
+    A3 --> A4[Dauer und Notiz eintragen]
+    A4 --> A5[Fortschritt aktualisieren]
+    A5 --> A6{Weitere\nPrüfung?}
+    A6 -->|Ja| A2
+    A6 -->|Nein| A7([Ende])
+```
 
 ---
 
