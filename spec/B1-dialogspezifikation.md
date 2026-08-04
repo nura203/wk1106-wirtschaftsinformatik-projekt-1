@@ -50,6 +50,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 
 **Verhalten:** Bei Erfolg → Weiterleitung auf `/`. Bei Fehler → Fehlermeldung unter Formular; kein Seitenreload; Passwortfeld geleert.
 
+![Login Mockup](assets/mockup-anmelden.JPG)
+
 ---
 
 ### S-02 — Registrieren (`/register`)
@@ -73,27 +75,6 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 
 **Realisiert:** UC-07
 
-**Layout:**
-
-```
-┌──────────────────────────────────────────────────┐
-│  Study Planer          [Benutzername]  [Abmelden]│
-├──────────────────────────────────────────────────┤
-│  Guten Morgen, [Name]!  ·  3 Aufgaben diese Woche│
-│                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐        │
-│  │ 🔴 Mathematik   │  │ 🟡 Englisch     │        │
-│  │ Klausur · morgen│  │ Abgabe · 5 Tage │        │
-│  │ ████████░░  80 %│  │ ████░░░░░░  40 %│        │
-│  └─────────────────┘  └─────────────────┘        │
-│                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐        │
-│  │ 🟢 Algorithmen  │  │  + Neue Aufgabe │        │
-│  │ Prüfung · 14 T. │  │                 │        │
-│  │ ██░░░░░░░░  20 %│  │                 │        │
-│  └─────────────────┘  └─────────────────┘        │
-└──────────────────────────────────────────────────┘
-```
 
 | Element | Beschreibung |
 |---------|-------------|
@@ -104,6 +85,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 | Navigation | Sidebar (Desktop) oder Bottom-Navigation (Mobile). |
 
 **Qualitäten:** NFR-11-01 (Ladezeit < 2 s); NFR-15-01 (Responsive).
+
+![Dashboard Mockup](assets/mockup-dashboards.JPG)
 
 ---
 
@@ -125,6 +108,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 | Abbrechen | Textlink → Aufgabenliste | Immer | — |
 
 **Verhalten:** Beim Bearbeiten wird das Formular mit bestehenden Werten befüllt. Validierungsfehler erscheinen inline am Feld (NFR-15-02). Datum in der Vergangenheit → Warnung, aber kein hartes Verbot.
+
+![Aufgabe anlegen Mockup](assets/mockup-aufgaben-anlegen.JPG)
 
 ---
 
@@ -156,6 +141,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 | Aufgaben-Chip | Titel, empfohlene Minuten, Ampelfarbe. |
 | Plan neu berechnen | Button → `POST /api/v1/plan/recalculate`. |
 
+![Lernplan Mockup](assets/mockup-lernplanung.JPG)
+
 ---
 
 ### S-07 — Einstellungen (`/settings`)
@@ -168,6 +155,8 @@ Alle Routen außer `/login` und `/register` erfordern eine aktive Sitzung. Unaut
 | Erinnerungen | Standard-Vorlaufzeit (Tage); Kanal-Auswahl (ReminderChannel: IN_APP / EMAIL / BOTH); Hinweis wenn SMTP nicht konfiguriert. |
 | Export | Button „Alle Aufgaben als .ics exportieren" → UC-11. |
 | Abmelden | Button → UC-03. |
+
+![Einstellungen Mockup](assets/mockup-einstellung.JPG)
 
 ---
 
