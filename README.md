@@ -1,5 +1,11 @@
 # Spezifikation — Study Planer
 
+Der Study Planer ist eine webbasierte Anwendung zur strukturierten Planung von Prüfungen, Abgaben und Lernzielen.  
+Das System erstellt automatisch einen priorisierten Lernplan und erinnert Studierende rechtzeitig 
+an bevorstehende Deadlines.
+
+**Technologien:** React · TypeScript · Spring Boot · Java 21 · PostgreSQL · Docker Compose
+
 Die vollständige Leseanleitung, den Bausteinindex und die Erklärung nicht anwendbarer Bausteine findet sich in [E1-leseanleitung.md](E1-leseanleitung.md).
 
 ---
