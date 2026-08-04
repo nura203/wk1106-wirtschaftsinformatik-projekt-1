@@ -1,6 +1,6 @@
 # S3 — Inbetriebnahme
 
-S3 beschreibt die Rollout-Prozedur für Entwicklungs- und Testbetrieb. Die vollständige Anweisung inkl. Troubleshooting befindet sich in `INSTALL.md` im Repository-Wurzelverzeichnis. S3 ist eine Zusammenfassung der wesentlichen Schritte.
+S3 beschreibt wie die Anwendung lokal gestartet und ausprobiert werden kann. Voraussetzung ist lediglich eine funktionierende Docker-Installation — kein lokales Java oder Node.js erforderlich.
 
 ---
 
@@ -12,7 +12,6 @@ S3 beschreibt die Rollout-Prozedur für Entwicklungs- und Testbetrieb. Die volls
 | Docker Compose | 2.x | Multi-Container-Orchestrierung |
 | Git | 2.x | Repository-Clone |
 
-Kein lokales Java, Maven oder Node.js erforderlich — alles läuft in Containern (CON-02, NFR-16-01).
 
 ---
 
@@ -37,30 +36,13 @@ Nach erfolgreichem Start erreichbar unter:
 |---------|-----|
 | Frontend (React SPA) | http://localhost:5173 |
 | Backend-API | http://localhost:8080/api/v1 |
-| Adminer (DB-UI, optional) | http://localhost:8888 |
 
-Das Datenbankschema wird beim ersten Start automatisch durch Flyway angelegt (NFR-16-02). Ein manuelles `migrate` ist nicht erforderlich.
 
----
-
-## S3.3 Konfiguration via Umgebungsvariablen
-
-Alle sensitiven Werte werden über `.env` konfiguriert — niemals direkt in `docker-compose.yml` oder `application.properties` (CON-06, NFR-12-04).
-
-| Variable | Default in `.env.example` | Beschreibung |
-|----------|--------------------------|--------------|
-| `JWT_SECRET` | `changeme-in-production` | JWT-Signing-Key; in Produktion ≥ 32 zufällige Zeichen |
-| `POSTGRES_DB` | `studyplaner` | Datenbankname |
-| `POSTGRES_USER` | `studyplaner` | Datenbanknutzer |
-| `POSTGRES_PASSWORD` | `studyplaner` | Datenbankpasswort |
-| `SMTP_HOST` | (leer) | SMTP-Server; leer = E-Mail-Kanal deaktiviert |
-| `SMTP_PORT` | `587` | SMTP-Port |
-| `SMTP_USER` | (leer) | SMTP-Nutzername |
-| `SMTP_PASS` | (leer) | SMTP-Passwort |
+Das Datenbankschema wird beim ersten Start automatisch angelegt.
 
 ---
 
-## S3.4 Stoppen und Datenbankzurücksetzen
+## S3.3 Stoppen und Datenbankzurücksetzen
 
 ```bash
 # Stoppen (Daten bleiben erhalten)
@@ -70,13 +52,3 @@ docker compose down
 docker compose down -v
 ```
 
----
-
-## S3.5 Querverweise
-
-| Baustein | Relevanz |
-|----------|---------|
-| P1 SC-02 | Erfolgskriterium: Anwendung startet mit `docker compose up --build` ohne manuelle Schritte. |
-| N2.5 | Konfigurationsmanagement-Konzept. |
-| CON-06 | Keine Secrets im Repo. |
-| NFR-16-01 | Plattformunabhängigkeit (Linux, macOS, Windows). |
