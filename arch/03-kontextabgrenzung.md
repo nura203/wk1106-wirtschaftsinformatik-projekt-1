@@ -47,7 +47,7 @@ graph TD
     Backend -->|"SMTP / STARTTLS<br/>optional"| SMTP
     SMTP -->|"E-Mail"| Nutzer
     Backend -->|".ics Download"| Browser
-    Browser -->|"Import der .ics-Datei"| Calendar
+    Browser -->|"manueller Import durch Benutzer"| Calendar
 ```
 
 ## 3.3 Interne und externe Kommunikation
@@ -93,7 +93,7 @@ Mozilla Thunderbird.
 
 Folgende Funktionen und Systeme gehören nicht zur Systemgrenze:
 
-- Mehrnutzer- und Gruppenfunktionen
+- Kollaborative Funktionen wie Gruppen, geteilte Aufgaben oder gemeinsame Lernpläne
 - Lernmanagementsysteme wie Moodle
 - Prüfungsanmeldung und institutionelle Notenverwaltung
 - Kommunikation zwischen Studierenden
