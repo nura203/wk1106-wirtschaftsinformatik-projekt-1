@@ -18,6 +18,8 @@ Der Study Planer benötigt ein Backend zur Verarbeitung der Geschäftslogik, zur
 
 Das Backend soll eine klare Schichtenstruktur ermöglichen und insbesondere Controller-, Service- und Repository-Schicht voneinander trennen.
 
+Java 21 ist gemäß CON-01 als technologische Randbedingung für das Backend vorgegeben. Die Architekturentscheidung beschränkt sich daher auf die Wahl von Spring Boot als Framework innerhalb des vorgegebenen Java-Technologiestacks.
+
 ### Entscheidung
 
 Das Backend wird mit **Java 21** und **Spring Boot** umgesetzt.
