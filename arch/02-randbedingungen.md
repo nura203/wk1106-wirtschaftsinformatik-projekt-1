@@ -35,6 +35,7 @@ werden in Kapitel 9 als Architekturentscheidungen (ADRs) dokumentiert.
 | CON-13 | Spezifikation und Architektur müssen aufeinander aufbauen und mit dem Code konsistent sein. | Use Cases, Architekturkomponenten und Code müssen eindeutig aufeinander abbildbar sein. |
 | CON-14 | Wesentliche Architekturentscheidungen müssen als ADRs dokumentiert werden. | Architekturentscheidungen werden in Kapitel 9 nachvollziehbar begründet. |
 | CON-15 | KI-Werkzeuge dürfen eingesetzt werden, ihre Verwendung muss jedoch dokumentiert und die Ergebnisse müssen vom Projektteam geprüft werden. | KI-generierte Inhalte werden nicht ungeprüft als Architekturentscheidungen übernommen. |
+| CON-16 | Das Repository ist öffentlich auf GitHub; der Betreuer muss ab Projektbeginn Lesezugriff haben. |Architektur-, Spezifikations- und Code-Dokumentation sind öffentlich einsehbar. Vertrauliche Informationen, Zugangsdaten und Secrets dürfen daher nicht im Repository gespeichert werden. |
 
 ## 2.4 Abgrenzung zu Architekturentscheidungen
 

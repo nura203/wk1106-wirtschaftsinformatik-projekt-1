@@ -129,7 +129,8 @@ Persistiert werden insbesondere die in D1 definierten Entitäten:
 
 Der Zugriff auf die Datenbank erfolgt aus dem Backend über Spring Data JPA und Hibernate.
 
-Die Datenbankdaten werden über ein Docker Volume persistent gespeichert. Dadurch bleiben die Daten bei einem Neustart der Container erhalten.
+Die Datenbankdaten werden über ein Docker Volume persistent gespeichert.
+Dadurch bleiben die Daten auch bei einem Neustart oder einer Neuerstellung des PostgreSQL-Containers erhalten, sofern das konfigurierte Volume weiterverwendet wird.
 
 ---
 
@@ -162,7 +163,7 @@ Die wesentlichen Kommunikationsverbindungen sind:
 |--------|------|---------------------------|-------|
 | Browser | Frontend | HTTP | Laden und Bedienen der Webanwendung |
 | Frontend | Backend | REST / JSON | Kommunikation mit der Anwendung |
-| Backend | PostgreSQL | JPA / Hibernate | Persistenzzugriff |
+| Backend | PostgreSQL | JDBC | Persistenzzugriff |
 | Backend | E-Mail-Provider | SMTP / STARTTLS | Optionale E-Mail-Erinnerungen |
 
 Die Kommunikation zwischen Frontend und Backend erfolgt über die in S1 definierte REST-Schnittstelle.
