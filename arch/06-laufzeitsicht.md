@@ -23,21 +23,31 @@ sequenceDiagram
     participant Frontend as React SPA
     participant Controller as Auth Controller
     participant Service as Auth Service
-    participant DB as PostgreSQL
     participant Security as JWT/Security
+    participant UserRepo as User Repository
+    participant DB as PostgreSQL
 
     Nutzer->>Frontend: E-Mail + Passwort eingeben
     Frontend->>Controller: POST /api/v1/auth/login
     Controller->>Service: Login-Daten übergeben
-    Service->>DB: Benutzer anhand E-Mail suchen
-    DB-->>Service: Benutzer + Passwort-Hash
+    Service->>UserRepo: Benutzer anhand E-Mail suchen
+    UserRepo-->>DB: Benutzer anhand E-Mail abfragen
+    DB-->>UserRepo: Benutzer + Passwort-Hash
+    UserRepo-->>Service: Benutzer + Passwort-Hash
     Service->>Security: Passwort prüfen
+alt Zugangsdaten gültig
     Security-->>Service: Prüfung erfolgreich
     Service->>Security: JWT erzeugen
     Security-->>Service: JWT
     Service-->>Controller: Authentifizierungsdaten
     Controller-->>Frontend: JWT + Userdaten
     Frontend-->>Nutzer: Dashboard anzeigen
+else Zugangsdaten ungültig
+    Security-->>Service: Prüfung fehlgeschlagen
+    Service-->>Controller: Authentifizierung fehlgeschlagen
+    Controller-->>Frontend: Allgemeine Fehlermeldung
+    Frontend-->>Nutzer: Anmeldung fehlgeschlagen
+end
 ```
 
 Bei ungültigen Zugangsdaten wird keine Information darüber preisgegeben, ob
@@ -66,18 +76,24 @@ sequenceDiagram
     Nutzer->>Frontend: Aufgabendaten eingeben
     Frontend->>Controller: POST /api/v1/tasks
     Controller->>Security: JWT prüfen
+    alt JWT gültig
     Security-->>Controller: Benutzer authentifiziert
     Controller->>Service: CreateTaskRequest
     Service->>Service: Eingaben validieren
     Service->>Service: TaskStatus aus Fortschritt ableiten
-    Service->>Repo: Aufgabe speichern
-    Repo->>DB: INSERT TASK
+    Service->>Repo: Aufgabe mit Eigentümer-ID speichern
+    Repo->>DB: Aufgabe mit Eigentümer-ID speichern
     DB-->>Repo: Gespeicherte Aufgabe
     Repo-->>Service: TASK
     Service->>Service: UrgencyLevel berechnen
     Service-->>Controller: TaskDTO
     Controller-->>Frontend: HTTP 201 + TaskDTO
     Frontend-->>Nutzer: Neue Aufgabe anzeigen
+else JWT ungültig
+    Security-->>Controller: Authentifizierung fehlgeschlagen
+    Controller-->>Frontend: HTTP 401
+    Frontend-->>Nutzer: Anmeldung erforderlich
+end
 ```
 
 Die Ownership-Prüfung ist beim Anlegen einer Aufgabe insbesondere dadurch
@@ -110,11 +126,12 @@ sequenceDiagram
     Security-->>Controller: Benutzer authentifiziert
     Controller->>Service: Lernplan für Benutzer anfordern
     Service->>Repo: Offene Aufgaben des Benutzers laden
-    Repo->>DB: SELECT offene TASKs
+    Repo->>DB: SELECT offene TASKs des Benutzers
     DB-->>Repo: Aufgaben
     Repo-->>Service: Offene Aufgaben
-    Service->>Service: AF-01 Lernplan berechnen
-    Service->>Service: AF-02 Dringlichkeit berechnen
+    Service->>Service: AF-01 Lernplan aus offenen Aufgaben berechnen
+    Service->>Service: AF-02 Dringlichkeit je Aufgabe berechnen
+    Service->>Service: Deadline, Aufwand und Fortschritt berücksichtigen
     Service-->>Controller: LearningPlanDTO
     Controller-->>Frontend: HTTP 200 + LearningPlanDTO
     Frontend-->>Nutzer: Priorisierten Lernplan anzeigen
@@ -127,11 +144,11 @@ die fachliche Logik zentral und kann unabhängig vom Frontend getestet werden.
 
 ## 6.4 Lernfortschritt aktualisieren — UC-09
 
-Beim Aktualisieren des Lernfortschritts kann der Studierende zusätzlich eine
-Lernsession erfassen.
+Beim Aktualisieren des Lernfortschritts übermittelt das Frontend die neuen
+Fortschrittsdaten und optional die Dauer der Lernsitzung an das Backend.
 
-Das Backend aktualisiert den Fortschritt und leitet daraus den neuen
-TaskStatus ab.
+Das Backend authentifiziert den Benutzer, validiert die Eingaben und aktualisiert
+den Lernfortschritt. Anschließend wird daraus der neue TaskStatus abgeleitet.
 
 ```mermaid
 sequenceDiagram
@@ -155,20 +172,19 @@ sequenceDiagram
     TaskRepo-->>Service: TASK
     Service->>Service: Ownership prüfen
     Service->>Service: progressPercent aktualisieren
-    Service->>Service: AF-03 TaskStatus ableiten
+Service->>Service: AF-03 TaskStatus ableiten
 
-    alt Lernsession wurde angegeben
-        Service->>SessionRepo: LearningSession speichern
-        SessionRepo->>DB: INSERT LEARNING_SESSION
-        DB-->>SessionRepo: Gespeicherte Session
-        Service->>TaskRepo: actualHours aktualisieren
-        TaskRepo->>DB: UPDATE TASK
-    end
+alt Lernsession wurde angegeben
+    Service->>SessionRepo: LearningSession speichern
+    SessionRepo->>DB: INSERT LEARNING_SESSION
+    DB-->>SessionRepo: Gespeicherte Session
+    Service->>Service: actualHours aktualisieren
+end
 
-    Service->>TaskRepo: TASK speichern
-    TaskRepo->>DB: UPDATE TASK
-    DB-->>TaskRepo: Aktualisierte Aufgabe
-    TaskRepo-->>Service: TASK
+Service->>TaskRepo: TASK speichern
+TaskRepo->>DB: UPDATE TASK
+DB-->>TaskRepo: Aktualisierte Aufgabe
+TaskRepo-->>Service: TASK
     Service-->>Controller: TaskDTO
     Controller-->>Frontend: HTTP 200 + TaskDTO
     Frontend-->>Nutzer: Aktualisierten Fortschritt anzeigen
@@ -230,19 +246,20 @@ Bei nicht vorhandenen Ressourcen wird HTTP 404 zurückgegeben.
 Unbehandelte interne Fehler werden durch den globalen
 `@ControllerAdvice`-Handler abgefangen und als HTTP 500 zurückgegeben.
 
+
 ```text
 Frontend
-    │
-    ▼
+   |
+   v
 REST Controller
-    │
-    ▼
+   |
+   v
 Service
-    │
-    ├── 401 → nicht authentifiziert
-    ├── 403 → fremde Ressource
-    ├── 404 → Ressource nicht vorhanden
-    └── 500 → interner Fehler
+   |
+   +-- 401 -> nicht authentifiziert
+   +-- 403 -> fremde Ressource
+   +-- 404 -> Ressource nicht vorhanden
+   +-- 500 -> interner Fehler
 ```
 
 Das Frontend verarbeitet diese Fehler zentral über den in N2.2 beschriebenen
