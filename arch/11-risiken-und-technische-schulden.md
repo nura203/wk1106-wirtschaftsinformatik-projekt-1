@@ -22,7 +22,7 @@ Der Lernplan-Algorithmus kann bei ungünstigen Eingaben, beispielsweise wenn vie
 
 - Grenzfälle durch Unit-Tests überprüfen
 - Lernplanberechnung mit unterschiedlichen Aufgabenverteilungen testen
-- Fallback-Verhalten vorsehen
+- Fallback-Verhalten für nicht eindeutig priorisierbare Aufgaben vorsehen
 - Priorisierung anhand von Deadline, offenem Aufwand und Gewichtung nachvollziehbar halten
 
 **Bezug:**
