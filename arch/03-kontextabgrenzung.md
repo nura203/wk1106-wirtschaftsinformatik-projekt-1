@@ -1,95 +1,63 @@
 # 3 — Kontextabgrenzung
 
-Dieses Kapitel beschreibt die Grenze des Study Planers zu seiner Umgebung.
-Es wird zwischen dem eigentlichen System, seinen Benutzern und externen
-Nachbarsystemen unterschieden.
+Dieses Kapitel beschreibt die Grenze des Study Planers zu seiner Umgebung.  
+Das System wird als Blackbox betrachtet. Interne Komponenten (Frontend,
+Backend, Datenbank) werden erst in Kapitel 5 und 7 detailliert.
 
-## 3.1 Systemgrenze
+## 3.1 Fachlicher Kontext
 
-Der Study Planer umfasst die folgenden internen Bestandteile:
-
-- React-basierte Weboberfläche
-- Spring-Boot-Backend
-- Geschäftslogik für Aufgabenverwaltung, Lernplan, Fortschritt und Erinnerungen
-- REST-API
-- Persistenzschicht
-- PostgreSQL-Datenbank
-- Generierung von iCalendar-Dateien
-
-Die PostgreSQL-Datenbank wird als interne Komponente des Study Planers
-betrachtet und ist daher kein Nachbarsystem.
-
-## 3.2 Systemkontext
-
-Das System interagiert mit einem primären Benutzer und zwei externen
-Nachbarsystemen:
-
-| Externes Element | Rolle | Schnittstelle |
-|------------------|-------|---------------|
-| Studierender | Primärer Benutzer des Study Planers | Browser / Weboberfläche |
-| E-Mail-Provider | Versand optionaler Erinnerungs-E-Mails | SMTP mit STARTTLS |
-| Kalender-Anwendung | Import der exportierten Aufgaben | iCalendar (`.ics`) |
-
-### Kontextdiagramm
+Der Study Planer ist eine webbasierte Einzelnutzer-Anwendung zur Planung
+von Prüfungen, Abgaben und Lernzielen.
 
 ```mermaid
 graph TD
     Nutzer["👤 Studierender"]
-    Browser["Browser<br/>React SPA"]
-    Backend["Study Planer<br/>Spring Boot"]
-    DB[("PostgreSQL<br/>interne Komponente")]
-    SMTP["E-Mail-Provider<br/>SMTP optional"]
-    Calendar["Kalender-Anwendung<br/>Google Calendar / Apple Calendar / Thunderbird"]
+    SP[" Study Planer"]
+    SMTP["📧 E-Mail-Provider"]
+    Cal["📅 Kalender-Anwendung"]
 
-    Nutzer -->|"bedient"| Browser
-    Browser -->|"REST/JSON<br/>HTTP"| Backend
-    Backend -->|"JPA / Hibernate"| DB
-    Backend -->|"SMTP / STARTTLS<br/>optional"| SMTP
-    SMTP -->|"E-Mail"| Nutzer
-    Backend -->|".ics Download"| Browser
-    Browser -->|"manueller Import durch Benutzer"| Calendar
+    Nutzer -->|"Aufgaben erfassen, Lernplan ansehen, Fortschritt eintragen"| SP
+    SP -->|"Erinnerungs-E-Mails versenden"| SMTP
+    SMTP -->|"E-Mail-Benachrichtigung"| Nutzer
+    SP -->|".ics-Datei exportieren"| Nutzer
+    Nutzer -->|"Manueller Import"| Cal
 ```
 
-## 3.3 Interne und externe Kommunikation
+| Nachbarsystem | Beschreibung | Datenfluss |
+|---------------|-------------|------------|
+| **Studierender** | Primärer Nutzer; bedient die Anwendung über einen Browser | Erfasst Aufgaben, liest Lernplan, trägt Fortschritt ein |
+| **E-Mail-Provider** | Externer Dienst für den optionalen Versand von Erinnerungs-E-Mails | System → Provider: E-Mail mit Erinnerungsinhalt; Provider → Nutzer: Zustellung |
+| **Kalender-Anwendung** | Lokale Kalender-App des Nutzers (z. B. Google Calendar, Apple Calendar) | System → Nutzer: `.ics`-Datei; Nutzer → Kalender: manueller Import |
 
-### Browser ↔ Backend
+## 3.2 Technischer Kontext
 
-Die Kommunikation zwischen der React-SPA und dem Spring-Boot-Backend erfolgt
-über eine versionierte REST-API.
+Die fachliche Darstellung aus 3.1 wird hier um die technischen Protokolle
+und Schnittstellen ergänzt. Das System selbst bleibt als Blackbox abgebildet.
 
-Basis-URL in der lokalen Entwicklungsumgebung:
+```mermaid
+graph TD
+    Nutzer["👤 Studierender<br/>Browser / Mobil"]
+    SP[" Study Planer<br/>React SPA + Spring Boot + PostgreSQL"]
+    SMTP["📧 E-Mail-Provider<br/>SMTP / STARTTLS"]
+    Cal["📅 Kalender-Anwendung<br/>iCalendar / RFC 5545"]
 
-`http://localhost:8080/api/v1`
+    Nutzer -->|"HTTPS / REST / JSON<br/>Authorization: Bearer JWT"| SP
+    SP -->|"SMTP / STARTTLS"| SMTP
+    SMTP -->|"E-Mail"| Nutzer
+    SP -->|"HTTP / .ics Download"| Nutzer
+    Nutzer -->|"Manueller Import"| Cal
+```
 
-Die Kommunikation verwendet JSON. Geschützte Endpunkte werden über einen
-JWT im HTTP-Header `Authorization: Bearer <token>` authentifiziert.
+| Nachbarsystem | Technische Schnittstelle | Protokoll / Format |
+|---------------|-------------------------|-------------------|
+| **Studierender** | REST-API des Backends | HTTPS, JSON, JWT (`Authorization: Bearer`) |
+| **E-Mail-Provider** | SMTP-Schnittstelle | SMTP mit STARTTLS; Konfiguration über Umgebungsvariablen |
+| **Kalender-Anwendung** | iCalendar-Datei | RFC 5545 (`.ics`); Download über Browser |
 
-### Backend ↔ PostgreSQL
+Die interne Kommunikation zwischen Frontend, Backend und Datenbank wird
+in Kapitel 7 (Verteilungssicht) beschrieben.
 
-Das Backend greift über Spring Data JPA und Hibernate auf die PostgreSQL-
-Datenbank zu. Die Datenbank gehört zur Systemgrenze und wird gemeinsam mit
-dem Backend über Docker Compose betrieben.
-
-### Backend ↔ E-Mail-Provider
-
-Der E-Mail-Versand ist optional. Das Backend kommuniziert über SMTP mit
-STARTTLS mit einem vom Betreiber konfigurierten E-Mail-Provider.
-
-Ist kein SMTP-Provider konfiguriert, wird der E-Mail-Kanal deaktiviert. Der
-Normalbetrieb des Study Planers wird dadurch nicht blockiert.
-
-### Study Planer ↔ Kalender-Anwendung
-
-Der Study Planer kommuniziert nicht direkt mit einer Kalender-API.
-
-Das Backend erzeugt eine RFC-5545-konforme `.ics`-Datei. Diese wird über den
-Browser heruntergeladen und anschließend vom Benutzer in eine unterstützte
-Kalender-Anwendung importiert.
-
-Unterstützt werden unter anderem Google Calendar, Apple Calendar und
-Mozilla Thunderbird.
-
-## 3.4 Abgrenzung außerhalb des Systems
+## 3.3 Abgrenzung außerhalb des Systems
 
 Folgende Funktionen und Systeme gehören nicht zur Systemgrenze:
 
