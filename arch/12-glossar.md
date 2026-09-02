@@ -10,22 +10,24 @@ Die Begriffe orientieren sich an der Spezifikation und werden in Architektur, Ba
 
 | Begriff | Erklärung |
 |---------|-----------|
-| **Study Planer** | Webbasierte Anwendung zur Planung und Organisation von Prüfungen, Abgaben und Lernzielen. |
-| **Task** | Eine Aufgabe des Studierenden. Eine Task kann beispielsweise eine Prüfung, eine Abgabe oder ein persönliches Lernziel darstellen. |
-| **Exam** | Eine institutionelle Prüfung, beispielsweise eine Klausur oder mündliche Prüfung. |
 | **Assignment** | Eine Aufgabe mit einer festen Abgabefrist. |
-| **Goal** | Ein selbst gesetztes Lernziel des Studierenden. |
 | **Deadline** | Das Datum, bis zu dem eine Aufgabe abgeschlossen sein soll. |
+| **Exam** | Eine institutionelle Prüfung, beispielsweise eine Klausur oder mündliche Prüfung. |
+| **Fortschritt** | Prozentualer Bearbeitungsstand einer Aufgabe zwischen 0 und 100 Prozent. |
+| **Goal** | Ein selbst gesetztes Lernziel des Studierenden. |
 | **Lernplan** | Vom System automatisch berechnete Übersicht über die empfohlenen Lernaktivitäten. |
 | **Lernsession** | Protokollierte Lerneinheit zu einer bestimmten Aufgabe. |
-| **Fortschritt** | Prozentualer Bearbeitungsstand einer Aufgabe zwischen 0 und 100 Prozent. |
-| **Reminder** | Eine konfigurierte Erinnerung an eine bevorstehende Deadline. |
-| **UrgencyLevel** | Vom Backend berechnete Dringlichkeitsstufe einer Aufgabe. |
 | **Ownership** | Zuordnung einer Ressource zu dem Benutzer, dem diese Ressource gehört. |
+| **Reminder** | Eine konfigurierte Erinnerung an eine bevorstehende Deadline. |
+| **Study Planer** | Webbasierte Anwendung zur Planung und Organisation von Prüfungen, Abgaben und Lernzielen. |
+| **Task** | Eine Aufgabe des Studierenden. Eine Task kann beispielsweise eine Prüfung, eine Abgabe oder ein persönliches Lernziel darstellen. |
+| **UrgencyLevel** | Vom Backend berechnete Dringlichkeitsstufe einer Aufgabe. |
 
 ---
 
-## 12.2 Status- und Aufgabentypen
+## 12.2 Datenmodelltypen
+
+Die folgenden fachlichen Datentypen definieren zulässige Ausprägungen von Eigenschaften des Datenmodells. Sie werden zur eindeutigen und konsistenten Darstellung von Aufgaben, deren Bearbeitungsstatus, Dringlichkeit und Erinnerungszustellung verwendet.
 
 ### TaskType
 
@@ -79,117 +81,63 @@ Beschreibt den Kanal, über den eine Erinnerung zugestellt wird.
 
 ---
 
-## 12.3 Architekturbegriffe
+## 12.3 Technische Begriffe
 
 | Begriff | Erklärung |
 |---------|-----------|
-| **arc42** | Struktur zur Dokumentation der Softwarearchitektur eines Systems. |
-| **ADR** | Architecture Decision Record. Dokumentiert eine wichtige Architekturentscheidung einschließlich Kontext, Entscheidung und Konsequenzen. |
-| **Bausteinsicht** | Beschreibt die statische Zerlegung eines Systems in Komponenten und deren Beziehungen. |
-| **Laufzeitsicht** | Beschreibt das Zusammenspiel der Komponenten während konkreter Abläufe. |
-| **Verteilungssicht** | Beschreibt, auf welchen technischen Knoten beziehungsweise Containern die Systemkomponenten ausgeführt werden. |
-| **Querschnittliches Konzept** | Konzept, das mehrere Komponenten oder Architekturbausteine betrifft. |
-| **Nachbarsystem** | Externes System, mit dem die Anwendung kommuniziert. |
-| **Architekturentscheidung** | Bewusste Entscheidung über eine wesentliche technische oder strukturelle Eigenschaft des Systems. |
-
----
-
-## 12.4 Backend-Begriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **Backend** | Serverseitiger Teil der Anwendung, der Geschäftslogik, API und Datenzugriff bereitstellt. |
-| **Spring Boot** | Framework zur Entwicklung der Java-basierten Backend-Anwendung. |
-| **Spring Security** | Spring-Komponente zur Umsetzung von Authentifizierung und Autorisierung. |
-| **Controller** | Backend-Komponente, die HTTP-Anfragen entgegennimmt und an die fachliche Verarbeitung weiterleitet. |
-| **Service** | Backend-Komponente, die die fachliche Geschäftslogik implementiert. |
-| **Repository** | Abstraktion für den Zugriff auf persistierte Daten. |
-| **Spring Data JPA** | Spring-Technologie zur Vereinfachung des Zugriffs auf relationale Datenbanken über JPA. |
-| **Hibernate** | ORM-Framework, das die Abbildung von Java-Objekten auf relationale Datenbanktabellen ermöglicht. |
-| **Flyway** | Werkzeug zur versionierten Verwaltung und Durchführung von Datenbankmigrationen. |
-| **Scheduler** | Automatisch ausgeführter Prozess, der zu festgelegten Zeitpunkten Aufgaben ausführt. |
-
----
-
-## 12.5 Frontend-Begriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **Frontend** | Clientseitiger Teil der Anwendung, mit dem der Benutzer interagiert. |
-| **React** | JavaScript-/TypeScript-Bibliothek zur Erstellung komponentenbasierter Benutzeroberflächen. |
-| **Single Page Application (SPA)** | Webanwendung, bei der die Benutzeroberfläche innerhalb einer Seite dynamisch aktualisiert wird. |
-| **TypeScript** | Programmiersprache beziehungsweise Erweiterung von JavaScript mit statischer Typisierung. |
-| **Responsive Design** | Gestaltung einer Benutzeroberfläche, die sich an unterschiedliche Bildschirmgrößen anpasst. |
-| **Axios** | HTTP-Client, der vom Frontend für die Kommunikation mit der REST-API verwendet werden kann. |
-
----
-
-## 12.6 API- und Datenbegriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **REST** | Architekturstil für Webschnittstellen, bei dem Ressourcen über HTTP-Methoden angesprochen werden. |
 | **API** | Application Programming Interface; definierte Schnittstelle zur Kommunikation zwischen Softwarekomponenten. |
-| **REST-API** | Über HTTP erreichbare Programmierschnittstelle des Backends. |
-| **JSON** | Textbasiertes Datenformat für den Austausch strukturierter Daten. |
-| **DTO** | Data Transfer Object; Datenobjekt für den Austausch zwischen Frontend und Backend. |
-| **JWT** | JSON Web Token; signiertes Token zur Übertragung der authentifizierten Benutzeridentität. |
-| **Bearer Token** | Authentifizierungs-Token, das über den HTTP-Header `Authorization` übertragen wird. |
-| **HTTP** | Protokoll für die Kommunikation zwischen Client und Server. |
-| **HTTP 401** | Antwortcode für fehlende oder ungültige Authentifizierung. |
-| **HTTP 403** | Antwortcode für einen verweigerten Zugriff. |
-| **HTTP 404** | Antwortcode für eine nicht vorhandene Ressource. |
-| **HTTP 500** | Antwortcode für einen internen Serverfehler. |
-
----
-
-## 12.7 Datenbankbegriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **PostgreSQL** | Relationale Open-Source-Datenbank, die im Study Planer zur persistenten Speicherung verwendet wird. |
-| **Entität** | Persistiertes fachliches Objekt des Datenmodells, beispielsweise `USER` oder `TASK`. |
-| **Primärschlüssel (PK)** | Eindeutige Kennzeichnung eines Datensatzes innerhalb einer Tabelle. |
-| **Fremdschlüssel (FK)** | Verweis auf einen Datensatz einer anderen Tabelle. |
-| **UUID** | Universally Unique Identifier zur eindeutigen Identifikation von Objekten. |
-| **Persistenz** | Dauerhafte Speicherung von Daten über die Laufzeit eines Programms hinaus. |
-| **Docker Volume** | Persistenter Speicherbereich für Containerdaten. |
-| **Migration** | Kontrollierte Änderung des Datenbankschemas. |
-
----
-
-## 12.8 Sicherheitsbegriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
+| **arc42** | Struktur zur Dokumentation der Softwarearchitektur eines Systems. |
+| **Architekturentscheidung** | Bewusste Entscheidung über eine wesentliche technische oder strukturelle Eigenschaft des Systems. |
 | **Authentifizierung** | Überprüfung der Identität eines Benutzers. |
 | **Autorisierung** | Prüfung, ob ein authentifizierter Benutzer eine bestimmte Aktion ausführen darf. |
-| **Ownership-Prüfung** | Prüfung, ob eine angeforderte Ressource dem aktuell authentifizierten Benutzer gehört. |
+| **Axios** | HTTP-Client, der vom Frontend für die Kommunikation mit der REST-API verwendet werden kann. |
+| **Bausteinsicht** | Beschreibt die statische Zerlegung eines Systems in Komponenten und deren Beziehungen. |
+| **Bearer Token** | Authentifizierungs-Token, das über den HTTP-Header `Authorization` übertragen wird. |
 | **bcrypt** | Passwort-Hashing-Verfahren zur sicheren Speicherung von Passwörtern. |
-| **Secret** | Sensibler Konfigurationswert, beispielsweise ein JWT-Secret oder Passwort. |
-| **XSS** | Cross-Site Scripting; Angriff, bei dem schädlicher Code in eine Webanwendung eingeschleust werden kann. |
-| **HTTPS** | Verschlüsselte Variante des HTTP-Protokolls. |
-| **TLS** | Protokoll zur verschlüsselten und authentifizierten Kommunikation über Netzwerke. |
-
----
-
-## 12.9 Deployment- und Infrastrukturbegriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **Docker** | Plattform zur Ausführung von Anwendungen in isolierten Containern. |
 | **Container** | Isolierte Laufzeitumgebung für eine Anwendung und ihre Abhängigkeiten. |
+| **Controller** | Backend-Komponente, die HTTP-Anfragen entgegennimmt und an die fachliche Verarbeitung weiterleitet. |
+| **Docker** | Plattform zur Ausführung von Anwendungen in isolierten Containern. |
 | **Docker Compose** | Werkzeug zur Definition und gemeinsamen Ausführung mehrerer Container. |
-| **Service** | Einzelne technische Komponente innerhalb eines Docker-Compose-Setups. |
-| **SMTP** | Simple Mail Transfer Protocol zur Übertragung von E-Mails. |
-| **STARTTLS** | Verfahren, mit dem eine bestehende Verbindung auf eine verschlüsselte TLS-Verbindung erweitert wird. |
+| **Docker Volume** | Persistenter Speicherbereich für Containerdaten. |
+| **DTO** | Data Transfer Object; Datenobjekt für den Austausch zwischen Frontend und Backend. |
+| **Flyway** | Werkzeug zur versionierten Verwaltung und Durchführung von Datenbankmigrationen. |
+| **Hibernate** | ORM-Framework, das die Abbildung von Java-Objekten auf relationale Datenbanktabellen ermöglicht. |
 | **iCalendar / iCal** | Standardformat zur Darstellung und zum Austausch von Kalenderdaten. |
-| **RFC 5545** | Standard, der das iCalendar-Format definiert. |
 | **`.ics`** | Dateiendung für Dateien im iCalendar-Format. |
+| **JSON** | Textbasiertes Datenformat für den Austausch strukturierter Daten. |
+| **JWT** | JSON Web Token; signiertes Token zur Übertragung der authentifizierten Benutzeridentität. |
+| **Laufzeitsicht** | Beschreibt das Zusammenspiel der Komponenten während konkreter Abläufe. |
+| **Migration** | Kontrollierte Änderung des Datenbankschemas. Sie bezeichnet den Vorgang der Schemaanpassung selbst. |
+| **Migration Script** | Konkrete Datei, die eine einzelne Datenbankmigration beschreibt und z. B. von Flyway ausgeführt wird. |
+| **Nachbarsystem** | Externes System, mit dem die Anwendung kommuniziert. |
+| **Ownership-Prüfung** | Prüfung, ob eine angeforderte Ressource dem aktuell authentifizierten Benutzer gehört. |
+| **PostgreSQL** | Relationale Open-Source-Datenbank, die im Study Planer zur persistenten Speicherung verwendet wird. |
+| **Querschnittliches Konzept** | Konzept, das mehrere Komponenten oder Architekturbausteine betrifft. |
+| **React** | JavaScript-/TypeScript-Bibliothek zur Erstellung komponentenbasierter Benutzeroberflächen. |
+| **Repository** | Abstraktion für den Zugriff auf persistierte Daten. |
+| **REST** | Architekturstil für Webschnittstellen, bei dem Ressourcen über HTTP-Methoden angesprochen werden. |
+| **REST-API** | Über HTTP erreichbare Programmierschnittstelle des Backends. |
+| **Responsive Design** | Gestaltung einer Benutzeroberfläche, die sich an unterschiedliche Bildschirmgrößen anpasst. |
+| **RFC 5545** | Standard, der das iCalendar-Format definiert. |
+| **Scheduler** | Automatisch ausgeführter Prozess, der zu festgelegten Zeitpunkten Aufgaben ausführt. |
+| **Secret** | Sensibler Konfigurationswert, beispielsweise ein JWT-Secret oder Passwort. |
+| **Service (Backend)** | Backend-Komponente, die die fachliche Geschäftslogik implementiert. |
+| **Service (Docker Compose)** | Einzelne technische Komponente innerhalb eines Docker-Compose-Setups. |
+| **SMTP** | Simple Mail Transfer Protocol zur Übertragung von E-Mails. |
+| **SPA (Single Page Application)** | Webanwendung, bei der die Benutzeroberfläche innerhalb einer Seite dynamisch aktualisiert wird. |
+| **Spring Boot** | Framework zur Entwicklung der Java-basierten Backend-Anwendung. |
+| **Spring Data JPA** | Spring-Technologie zur Vereinfachung des Zugriffs auf relationale Datenbanken über JPA. |
+| **Spring Security** | Spring-Komponente zur Umsetzung von Authentifizierung und Autorisierung. |
+| **STARTTLS** | Verfahren, mit dem eine bestehende Verbindung auf eine verschlüsselte TLS-Verbindung erweitert wird. |
+| **TLS** | Protokoll zur verschlüsselten und authentifizierten Kommunikation über Netzwerke. |
+| **TypeScript** | Programmiersprache beziehungsweise Erweiterung von JavaScript mit statischer Typisierung. |
+| **UUID** | Universally Unique Identifier zur eindeutigen Identifikation von Objekten. |
+| **Verteilungssicht** | Beschreibt, auf welchen technischen Knoten beziehungsweise Containern die Systemkomponenten ausgeführt werden. |
+| **XSS** | Cross-Site Scripting; Angriff, bei dem schädlicher Code in eine Webanwendung eingeschleust werden kann. |
 
 ---
 
-## 12.10 Dokumentationsbegriffe
+## 12.4 Dokumentationsbegriffe
 
 | Begriff | Erklärung |
 |---------|-----------|
@@ -202,7 +150,7 @@ Beschreibt den Kanal, über den eine Erinnerung zugestellt wird.
 
 ---
 
-## 12.11 Abkürzungsverzeichnis
+## 12.5 Abkürzungsverzeichnis
 
 | Abkürzung | Bedeutung |
 |-----------|-----------|
@@ -229,7 +177,7 @@ Beschreibt den Kanal, über den eine Erinnerung zugestellt wird.
 
 ---
 
-## 12.12 Konsistente Verwendung
+## 12.6 Konsistente Verwendung
 
 Die in diesem Glossar definierten Begriffe sollen im weiteren Projektverlauf einheitlich verwendet werden.
 
