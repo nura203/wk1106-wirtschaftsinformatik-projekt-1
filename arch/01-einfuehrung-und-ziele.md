@@ -32,18 +32,11 @@ Die Architektur soll insbesondere folgende Ziele unterstützen:
 
 Für die Architektur sind insbesondere folgende Qualitätsziele relevant:
 
-- **Performance:** Das Dashboard soll in unter 2 Sekunden laden. Standard-REST-
-  Requests sollen im 95. Perzentil unter 500 ms beantwortet werden.
-- **Sicherheit:** Passwörter werden ausschließlich als bcrypt-Hash gespeichert.
-  Geschützte API-Endpunkte erfordern einen gültigen JWT. Nutzer dürfen nur auf
-  eigene Ressourcen zugreifen.
-- **Zuverlässigkeit:** Persistierte Daten sollen einen Neustart der Datenbank
-  überstehen. Fehler einzelner Funktionen dürfen den Normalbetrieb nicht
-  blockieren.
-- **Wartbarkeit:** Die Geschäftslogik soll strukturiert und durch Unit-Tests
-  abgesichert werden. Wesentliche Architekturentscheidungen werden als ADRs
-  dokumentiert.
-- **Benutzbarkeit:** Die Anwendung soll auf Desktop- und Mobilgeräten nutzbar
-  sein und verständliche Fehlermeldungen bereitstellen.
-- **Portierbarkeit:** Die Anwendung soll über Docker Compose auf Linux, macOS
-  und Windows gestartet werden können.
+| ID | Qualitätsziel | Anforderung / Kriterium |
+|----|---------------|-------------------------|
+| QZ-01 | Performance | Das Dashboard soll in unter 2 Sekunden laden. Standard-REST-Requests sollen im 95. Perzentil unter 500 ms beantwortet werden. |
+| QZ-02 | Sicherheit | Passwörter werden ausschließlich als bcrypt-Hash gespeichert. Geschützte API-Endpunkte erfordern einen gültigen JWT. Nutzer dürfen nur auf eigene Ressourcen zugreifen. |
+| QZ-03 | Zuverlässigkeit | Persistierte Daten sollen einen Neustart der Datenbank überstehen. Fehler einzelner Funktionen dürfen den Normalbetrieb nicht blockieren. |
+| QZ-04 | Wartbarkeit | Die Geschäftslogik soll strukturiert und durch Unit-Tests abgesichert werden. Wesentliche Architekturentscheidungen werden als ADRs dokumentiert. |
+| QZ-05 | Benutzbarkeit | Die Anwendung soll auf Desktop- und Mobilgeräten nutzbar sein und verständliche Fehlermeldungen bereitstellen. |
+| QZ-06 | Portierbarkeit | Die Anwendung soll über Docker Compose auf Linux, macOS und Windows gestartet werden können. |

@@ -1,302 +1,230 @@
 # 6 — Laufzeitsicht
 
 Die Laufzeitsicht beschreibt das Verhalten der wesentlichen Architekturbausteine
-zur Laufzeit. Dazu werden ausgewählte Abläufe aus den in der Spezifikation
-beschriebenen Use Cases betrachtet.
+zur Laufzeit. Da die Interaktionsmuster über die
+meisten Use Cases hinweg identisch sind, werden hier zwei verallgemeinerte
+Laufzeitszenarien dargestellt:
 
-Die dargestellten Abläufe zeigen insbesondere die Kommunikation zwischen
-Frontend, REST-API, Security, Service-Schicht und Persistenz.
+1. **Authentifizierung** (UC-01, UC-02) — detailliert, da hier der Umgang
+   mit JWT und Security im Fokus steht.
+2. **Fachlicher Request-Lebenszyklus** (UC-04 bis UC-09, UC-11) —
+   verallgemeinert über alle authentifizierten fachlichen Operationen.
+3. **Hintergrundprozess Reminder-Scheduler** (UC-10) — als ergänzender
+   Ablauf ohne Frontend-Beteiligung.
+
+Die verwendeten Bausteine entsprechen den in Kapitel 5 definierten
+Blackboxen und Whiteboxen. Konkrete Controller/Service-Kombinationen
+sind in [5.3](../arch/05-bausteinsicht.md) dokumentiert.
 
 ---
 
-## 6.1 Anmeldung — UC-02
+## 6.1 Authentifizierung — UC-01 / UC-02
 
-Bei der Anmeldung übermittelt der Studierende seine E-Mail-Adresse und sein
-Passwort an das Backend.
-
-Das Backend prüft die Zugangsdaten und stellt bei erfolgreicher
-Authentifizierung ein JWT aus.
+Bei Registrierung und Anmeldung übermittelt das Frontend die
+Anmeldedaten an den [Auth Controller](../arch/05-bausteinsicht.md#5311-blackbox-auth-controller).
+Dieser delegiert an den [Auth Service](../arch/05-bausteinsicht.md#5321-blackbox-auth-service),
+der die Prüfung über das [Security](../arch/05-bausteinsicht.md#5221-blackbox-security)-Modul
+und die Datenbank durchführt.
 
 ```mermaid
 sequenceDiagram
     actor Nutzer as Studierender
-    participant Frontend as React SPA
-    participant Controller as Auth Controller
-    participant Service as Auth Service
-    participant Security as JWT/Security
-    participant UserRepo as User Repository
-    participant DB as PostgreSQL
+    participant Frontend as Frontend (React SPA)<br/>[5.1.1]
+    participant AuthC as Auth Controller<br/>[5.3.1.1]
+    participant AuthS as Auth Service<br/>[5.3.2.1]
+    participant Sec as Security / JWT<br/>[5.2.2.1]
+    participant UserRepo as User Repository<br/>[5.2.2.4]
+    participant DB as PostgreSQL<br/>[5.1.3]
 
     Nutzer->>Frontend: E-Mail + Passwort eingeben
-    Frontend->>Controller: POST /api/v1/auth/login
-    Controller->>Service: Login-Daten übergeben
-    Service->>UserRepo: Benutzer anhand E-Mail suchen
-    UserRepo-->>DB: Benutzer anhand E-Mail abfragen
+    Frontend->>AuthC: POST /api/v1/auth/login<br/>(oder /register)
+    AuthC->>AuthS: Login-Daten übergeben
+    AuthS->>UserRepo: Benutzer anhand E-Mail suchen
+    UserRepo-->>DB: SELECT Benutzer
     DB-->>UserRepo: Benutzer + Passwort-Hash
-    UserRepo-->>Service: Benutzer + Passwort-Hash
-    Service->>Security: Passwort prüfen
-alt Zugangsdaten gültig
-    Security-->>Service: Prüfung erfolgreich
-    Service->>Security: JWT erzeugen
-    Security-->>Service: JWT
-    Service-->>Controller: Authentifizierungsdaten
-    Controller-->>Frontend: JWT + Userdaten
-    Frontend-->>Nutzer: Dashboard anzeigen
-else Zugangsdaten ungültig
-    Security-->>Service: Prüfung fehlgeschlagen
-    Service-->>Controller: Authentifizierung fehlgeschlagen
-    Controller-->>Frontend: Allgemeine Fehlermeldung
-    Frontend-->>Nutzer: Anmeldung fehlgeschlagen
-end
+    UserRepo-->>AuthS: Benutzer + Passwort-Hash
+    AuthS->>Sec: Passwort prüfen (bcrypt)
+
+    alt Zugangsdaten gültig
+        Sec-->>AuthS: Prüfung erfolgreich
+        AuthS->>Sec: JWT erzeugen (HS256, 24h)
+        Sec-->>AuthS: JWT
+        AuthS-->>AuthC: Authentifizierungsdaten
+        AuthC-->>Frontend: HTTP 200 + JWT + Userdaten
+        Frontend-->>Nutzer: Dashboard anzeigen
+    else Zugangsdaten ungültig
+        Sec-->>AuthS: Prüfung fehlgeschlagen
+        AuthS-->>AuthC: Authentifizierung fehlgeschlagen
+        AuthC-->>Frontend: HTTP 401 + Allgemeine Fehlermeldung
+        Frontend-->>Nutzer: Anmeldung fehlgeschlagen
+    end
 ```
 
-Bei ungültigen Zugangsdaten wird keine Information darüber preisgegeben, ob
-die E-Mail-Adresse oder das Passwort falsch war. Dies entspricht NFR-12-05.
+Bei ungültigen Zugangsdaten wird keine Information darüber preisgegeben,
+ob die E-Mail-Adresse oder das Passwort falsch war. Dies entspricht
+[NFR-12-05](../spec/N1-nichtfunktionale-anforderungen.md).
+
+Die **Abmeldung (UC-03)** erfolgt clientseitig durch Löschen des JWT im
+Frontend ([5.2.1.3](../arch/05-bausteinsicht.md#5213-blackbox-services));
+ein serverseitiger Invalidierungsmechanismus ist bei stateless JWT nicht
+erforderlich.
 
 ---
 
-## 6.2 Aufgabe anlegen — UC-04
+## 6.2 Fachlicher Request-Lebenszyklus — UC-04 bis UC-09, UC-11
 
-Beim Anlegen einer Aufgabe sendet das Frontend eine
-`CreateTaskRequest` an den geschützten REST-Endpunkt.
+Nach erfolgreicher Authentifizierung folgen alle fachlichen Operationen
+einem identischen Muster: Der Studierende löst über das Frontend einen
+HTTP-Request aus. Das [Security](../arch/05-bausteinsicht.md#5221-blackbox-security)-Modul
+prüft den JWT, bevor der zuständige fachliche Controller die Anfrage
+annimmt und an die Service-Schicht delegiert.
 
-Das Backend authentifiziert den Benutzer und übergibt die Anfrage an die
-fachliche Aufgabenverwaltung.
+Das folgende Diagramm zeigt das **verallgemeinerte Muster** am
+Beispiel *Aufgabe anlegen (UC-04)*. Die konkreten Bausteine
+(Task Controller / Task Service / Task Repository) sind durch die
+jeweiligen fachlichen Entsprechungen aus [5.3](../arch/05-bausteinsicht.md)
+ersetzbar (z. B. Learning Plan Controller / Learning Plan Service für
+UC-08, Export Controller / Calendar Export Service für UC-11).
 
 ```mermaid
 sequenceDiagram
     actor Nutzer as Studierender
-    participant Frontend as React SPA
-    participant Security as JWT/Security
-    participant Controller as Task Controller
-    participant Service as Task Service
-    participant Repo as Task Repository
-    participant DB as PostgreSQL
+    participant Frontend as Frontend (React SPA)<br/>[5.1.1]
+    participant Sec as Security / JWT<br/>[5.2.2.1]
+    participant Ctrl as {Fachlicher} Controller<br/>z. B. Task Controller [5.3.1.2]
+    participant Svc as {Fachlicher} Service<br/>z. B. Task Service [5.3.2.2]
+    participant Repo as {Fachliches} Repository<br/>z. B. Task Repository [5.2.2.4]
+    participant DB as PostgreSQL<br/>[5.1.3]
 
     Nutzer->>Frontend: Aufgabendaten eingeben
-    Frontend->>Controller: POST /api/v1/tasks
-    Controller->>Security: JWT prüfen
-    alt JWT gültig
-    Security-->>Controller: Benutzer authentifiziert
-    Controller->>Service: CreateTaskRequest
-    Service->>Service: Eingaben validieren
-    Service->>Service: TaskStatus aus Fortschritt ableiten
-    Service->>Repo: Aufgabe mit Eigentümer-ID speichern
-    Repo->>DB: Aufgabe mit Eigentümer-ID speichern
-    DB-->>Repo: Gespeicherte Aufgabe
-    Repo-->>Service: TASK
-    Service->>Service: UrgencyLevel berechnen
-    Service-->>Controller: TaskDTO
-    Controller-->>Frontend: HTTP 201 + TaskDTO
-    Frontend-->>Nutzer: Neue Aufgabe anzeigen
-else JWT ungültig
-    Security-->>Controller: Authentifizierung fehlgeschlagen
-    Controller-->>Frontend: HTTP 401
-    Frontend-->>Nutzer: Anmeldung erforderlich
-end
+    Frontend->>Ctrl: POST /api/v1/tasks<br/>Authorization: Bearer JWT
+
+    alt JWT ungültig / fehlend
+        Ctrl->>Sec: JWT validieren
+        Sec-->>Ctrl: Authentifizierung fehlgeschlagen
+        Ctrl-->>Frontend: HTTP 401
+        Frontend-->>Nutzer: Anmeldung erforderlich
+    else JWT gültig
+        Sec-->>Ctrl: Benutzer authentifiziert
+        Ctrl->>Svc: Request-DTO übergeben
+
+        Svc->>Svc: Eingaben validieren
+        Svc->>Svc: Ownership prüfen [AF-07]
+
+        alt Fremde Ressource (Ownership verletzt)
+            Svc-->>Ctrl: AccessDeniedException
+            Ctrl-->>Frontend: HTTP 403
+            Frontend-->>Nutzer: Zugriff verweigert
+        else Eigene Ressource oder Neuanlage
+            Svc->>Repo: Entität speichern / laden
+            Repo-->>DB: INSERT / SELECT / UPDATE
+            DB-->>Repo: Ergebnis
+
+            alt Datenbankfehler / unbehandelter Fehler
+                Repo-->>Svc: Exception
+                Svc-->>Ctrl: RuntimeException
+                Ctrl-->>Frontend: HTTP 500
+                Frontend-->>Nutzer: Allgemeine Fehlermeldung
+            else Erfolg
+                Repo-->>Svc: Entität
+                Svc->>Svc: Fachliche Berechnung<br/>(z. B. UrgencyLevel [5.3.2.4])
+                Svc-->>Ctrl: Response-DTO
+                Ctrl-->>Frontend: HTTP 200/201 + DTO
+                Frontend-->>Nutzer: Ergebnis anzeigen
+            end
+        end
+    end
 ```
 
-Die Ownership-Prüfung ist beim Anlegen einer Aufgabe insbesondere dadurch
-gewährleistet, dass die Eigentümer-ID aus der authentifizierten Identität
-verwendet wird.
+### Zuordnung der fachlichen Use Cases zu den konkreten Bausteinen
+
+| Use Case | Controller [5.3.1] | Service [5.3.2] | Repository [5.2.2.4] |
+|----------|-------------------|-----------------|----------------------|
+| UC-04 Aufgabe anlegen | Task Controller | Task Service | Task Repository |
+| UC-05 Aufgabe bearbeiten | Task Controller | Task Service | Task Repository |
+| UC-06 Aufgabe löschen | Task Controller | Task Service | Task Repository |
+| UC-07 Dashboard anzeigen | Task Controller | Task Service + Urgency-Berechnung [5.3.2.4] | Task Repository |
+| UC-08 Lernplan anzeigen | Learning Plan Controller [5.3.1.3] | Learning Plan Service [5.3.2.3] | Task Repository |
+| UC-09 Lernfortschritt eintragen | Task Controller | Progress Service [5.3.2.5] | Task Repository + Learning Session Repository |
+| UC-11 Kalenderexport | Export Controller [5.3.1.4] | Calendar Export Service [5.3.2.7] | Task Repository |
+
+Die fachliche Verarbeitung findet stets zentral in der Service-Schicht
+statt. Die Controller dienen ausschließlich als API-Schnittstelle, die
+Repository-Schicht kapselt den Datenbankzugriff.
 
 ---
 
-## 6.3 Lernplan berechnen — UC-08
+## 6.3 Hintergrundprozess: Reminder-Scheduler — UC-10
 
-Der Lernplan wird serverseitig aus den offenen Aufgaben des authentifizierten
-Benutzers berechnet.
-
-Die Berechnung berücksichtigt Deadline, offenen Aufwand, Fortschritt und
-Prioritätsgewichtung.
+Der [Reminder Service / Scheduler](../arch/05-bausteinsicht.md#5326-blackbox-reminder-service--scheduler)
+ist ein Hintergrundprozess, der nicht durch ein Frontend-Event ausgelöst
+wird. Er läuft täglich um 08:00 Uhr und prüft fällige Erinnerungen.
 
 ```mermaid
 sequenceDiagram
-    actor Nutzer as Studierender
-    participant Frontend as React SPA
-    participant Security as JWT/Security
-    participant Controller as Learning Plan Controller
-    participant Service as Learning Plan Service
-    participant Repo as Task Repository
-    participant DB as PostgreSQL
+    participant Scheduler as Reminder Service /<br/>Scheduler [5.3.2.6]
+    participant ReminderRepo as Reminder Repository<br/>[5.2.2.4]
+    participant DB as PostgreSQL<br/>[5.1.3]
+    participant SMTP as E-Mail-Provider<br/>[3.1] (optional)
 
-    Nutzer->>Frontend: Lernplan öffnen
-    Frontend->>Controller: GET /api/v1/plan
-    Controller->>Security: JWT prüfen
-    Security-->>Controller: Benutzer authentifiziert
-    Controller->>Service: Lernplan für Benutzer anfordern
-    Service->>Repo: Offene Aufgaben des Benutzers laden
-    Repo->>DB: SELECT offene TASKs des Benutzers
-    DB-->>Repo: Aufgaben
-    Repo-->>Service: Offene Aufgaben
-    Service->>Service: AF-01 Lernplan aus offenen Aufgaben berechnen
-    Service->>Service: AF-02 Dringlichkeit je Aufgabe berechnen
-    Service->>Service: Deadline, Aufwand und Fortschritt berücksichtigen
-    Service-->>Controller: LearningPlanDTO
-    Controller-->>Frontend: HTTP 200 + LearningPlanDTO
-    Frontend-->>Nutzer: Priorisierten Lernplan anzeigen
-```
+    Scheduler->>Scheduler: Cron-Job (0 0 8 * * *)
+    Scheduler->>ReminderRepo: Aktive Reminder laden
+    ReminderRepo-->>DB: SELECT fällige Reminder
+    DB-->>ReminderRepo: Reminder-Liste
+    ReminderRepo-->>Scheduler: Reminder-Liste
 
-Die eigentliche Berechnung erfolgt ausschließlich im Backend. Dadurch bleibt
-die fachliche Logik zentral und kann unabhängig vom Frontend getestet werden.
+    loop Für jeden fälligen Reminder
+        alt E-Mail konfiguriert
+            Scheduler->>SMTP: E-Mail versenden
+            SMTP-->>Scheduler: Versandbestätigung / Fehler
+        else Keine E-Mail konfiguriert
+            Scheduler->>Scheduler: Nur intern protokollieren
+        end
+    end
 
----
-
-## 6.4 Lernfortschritt aktualisieren — UC-09
-
-Beim Aktualisieren des Lernfortschritts übermittelt das Frontend die neuen
-Fortschrittsdaten und optional die Dauer der Lernsitzung an das Backend.
-
-Das Backend authentifiziert den Benutzer, validiert die Eingaben und aktualisiert
-den Lernfortschritt. Anschließend wird daraus der neue TaskStatus abgeleitet.
-
-```mermaid
-sequenceDiagram
-    actor Nutzer as Studierender
-    participant Frontend as React SPA
-    participant Security as JWT/Security
-    participant Controller as Task Controller
-    participant Service as Progress Service
-    participant TaskRepo as Task Repository
-    participant SessionRepo as Learning Session Repository
-    participant DB as PostgreSQL
-
-    Nutzer->>Frontend: Fortschritt aktualisieren
-    Frontend->>Controller: PATCH /api/v1/tasks/{id}/progress
-    Controller->>Security: JWT prüfen
-    Security-->>Controller: Benutzer authentifiziert
-    Controller->>Service: UpdateProgressRequest
-    Service->>TaskRepo: Aufgabe laden
-    TaskRepo->>DB: SELECT TASK
-    DB-->>TaskRepo: TASK
-    TaskRepo-->>Service: TASK
-    Service->>Service: Ownership prüfen
-    Service->>Service: progressPercent aktualisieren
-Service->>Service: AF-03 TaskStatus ableiten
-
-alt Lernsession wurde angegeben
-    Service->>SessionRepo: LearningSession speichern
-    SessionRepo->>DB: INSERT LEARNING_SESSION
-    DB-->>SessionRepo: Gespeicherte Session
-    Service->>Service: actualHours aktualisieren
-end
-
-Service->>TaskRepo: TASK speichern
-TaskRepo->>DB: UPDATE TASK
-DB-->>TaskRepo: Aktualisierte Aufgabe
-TaskRepo-->>Service: TASK
-    Service-->>Controller: TaskDTO
-    Controller-->>Frontend: HTTP 200 + TaskDTO
-    Frontend-->>Nutzer: Aktualisierten Fortschritt anzeigen
+    Note over Scheduler: Scheduler-Fehler beeinträchtigen<br/>den Normalbetrieb nicht [NFR-13-03]
 ```
 
 ---
 
-## 6.5 Aufgabe löschen — UC-06
+## 6.4 Zusammenfassung der Laufzeitarchitektur
 
-Beim Löschen einer Aufgabe prüft das Backend zunächst die Authentifizierung
-und anschließend die Ownership der Aufgabe.
-
-Wird die Aufgabe gelöscht, werden die zugehörigen abhängigen Datensätze
-gemäß den in D1 definierten Kaskadenregeln ebenfalls gelöscht.
-
-```mermaid
-sequenceDiagram
-    actor Nutzer as Studierender
-    participant Frontend as React SPA
-    participant Security as JWT/Security
-    participant Controller as Task Controller
-    participant Service as Task Service
-    participant Repo as Task Repository
-    participant DB as PostgreSQL
-
-    Nutzer->>Frontend: Aufgabe löschen
-    Frontend->>Controller: DELETE /api/v1/tasks/{id}
-    Controller->>Security: JWT prüfen
-    Security-->>Controller: Benutzer authentifiziert
-    Controller->>Service: Aufgabe löschen
-    Service->>Repo: Aufgabe laden
-    Repo->>DB: SELECT TASK
-    DB-->>Repo: TASK
-    Repo-->>Service: TASK
-    Service->>Service: Ownership prüfen
-    Service->>Repo: Aufgabe löschen
-    Repo->>DB: DELETE TASK
-    DB-->>Repo: Löschung erfolgreich
-    Repo-->>Service: Erfolgreich gelöscht
-    Service-->>Controller: Erfolgreich
-    Controller-->>Frontend: HTTP 204
-    Frontend-->>Nutzer: Aufgabe aus Liste entfernen
-```
-
----
-
-## 6.6 Fehlerfall
-
-Fehler werden entsprechend N2.2 zentral behandelt.
-
-Bei einem ungültigen oder fehlenden JWT wird der Zugriff mit HTTP 401
-abgelehnt.
-
-Wird versucht, auf eine fremde Ressource zuzugreifen, wird die
-Ownership-Prüfung ausgelöst und das Backend antwortet mit HTTP 403.
-
-Bei nicht vorhandenen Ressourcen wird HTTP 404 zurückgegeben.
-
-Unbehandelte interne Fehler werden durch den globalen
-`@ControllerAdvice`-Handler abgefangen und als HTTP 500 zurückgegeben.
-
-
-```text
-Frontend
-   |
-   v
-REST Controller
-   |
-   v
-Service
-   |
-   +-- 401 -> nicht authentifiziert
-   +-- 403 -> fremde Ressource
-   +-- 404 -> Ressource nicht vorhanden
-   +-- 500 -> interner Fehler
-```
-
-Das Frontend verarbeitet diese Fehler zentral über den in N2.2 beschriebenen
-Axios-Interceptor und den zentralen Error-State.
-
----
-
-## 6.7 Zusammenfassung
-
-Die Laufzeitsicht zeigt, dass die wesentliche Kommunikation des Systems
-entlang der folgenden Struktur erfolgt:
+Die wesentliche Kommunikation des Systems erfolgt entlang der folgenden,
+in Kapitel 5 definierten Struktur:
 
 ```text
 Studierender
      │
      ▼
-React SPA
+Frontend (React SPA) [5.1.1]
      │
      ▼
-REST Controller
+Security / JWT [5.2.2.1]
      │
      ▼
-Security / Authentifizierung
+{Fachlicher} REST Controller [5.3.1]
      │
      ▼
-Service-Schicht
+{Fachlicher} Service [5.3.2]
      │
      ▼
-Repository-Schicht
+Repository-Schicht [5.2.2.4]
      │
      ▼
-PostgreSQL
+PostgreSQL [5.1.3]
 ```
 
-Die fachliche Verarbeitung findet dabei zentral in der Service-Schicht statt.
-Die Controller dienen als API-Schnittstelle und die Repository-Schicht
-kapselt den Datenbankzugriff.
+Die dargestellten Szenarien decken die überwiegende Mehrheit der
+Systemabläufe ab:
+- **Authentifizierung** beschreibt den initialen Login/Registrierungs-Flow
+  inklusive Token-Erzeugung.
+- **Fachlicher Request-Lebenszyklus** beschreibt das einheitliche Muster
+  aller authentifizierten Operationen von der Anfrage bis zur Persistenz.
+- **Reminder-Scheduler** beschreibt den einzigen signifikant abweichenden
+  Hintergrundprozess.
 
-Die dargestellten Laufzeitszenarien stellen die Verbindung zwischen den
-Use Cases aus der Spezifikation und den Architekturbausteinen her.
+Fehler werden in allen Abläufen an der jeweiligen Architekturgrenze
+gefangen und als standardisierte HTTP-Statuscodes (401, 403, 404, 500)
+an das Frontend zurückgegeben, wo sie zentral über den in
+[N2.2](../spec/N2-querschnittskonzepte.md) beschriebenen Interceptor
+verarbeitet werden.
