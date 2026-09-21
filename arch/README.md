@@ -1,7 +1,6 @@
-# Softwarearchitektur — Study Planer
+# Softwarearchitektur — StudyPlanner
 
-Die vollständige Softwarearchitekturbeschreibung des Study Planers folgt der
-arc42-Struktur. Die einzelnen Architekturbausteine sind unten verlinkt.
+Die vollständige Softwarearchitekturbeschreibung des Study Planners folgt der arc42-Struktur. Die einzelnen Architekturbausteine sind unten verlinkt.
 
 ---
 
@@ -18,17 +17,34 @@ arc42-Struktur. Die einzelnen Architekturbausteine sind unten verlinkt.
 | 7 — Verteilungssicht | [07-verteilungssicht.md](07-verteilungssicht.md) |
 | 8 — Querschnittliche Konzepte | [08-querschnittskonzepte.md](08-querschnittskonzepte.md) |
 | 9 — Architekturentscheidungen | [09-architekturentscheidungen.md](09-architekturentscheidungen.md) |
-| 10 — Qualitätsanforderungen | [10-qualitaetsanforderungen.md](10-qualitaetsanforderungen.md) |
-| 11 — Risiken und technische Schulden | [11-risiken-und-technische-schulden.md](11-risiken-und-technische-schulden.md) |
 | 12 — Glossar | [12-glossar.md](12-glossar.md) |
+
+Die Kapitel 10 und 11 entfallen gemäß der vorgegebenen M3-Architekturstruktur.
+
+---
+
+## Dokumentationsstruktur
+
+Die Architekturkapitel folgen der arc42-Struktur und beschreiben unter anderem:
+
+- Ziele und Randbedingungen
+- Kontext und Schnittstellen
+- Lösungsstrategie
+- statische Bausteinstruktur
+- Laufzeitverhalten
+- Verteilung der Anwendung
+- querschnittliche technische Konzepte
+- wesentliche Architekturentscheidungen
+- verwendete Fach- und Technikbegriffe
+
+Die Inhalte werden mit der Spezifikation und der tatsächlichen Implementierung des Study Planners abgeglichen.
 
 ---
 
 ## Eingesetzte KI-Werkzeuge
 
 | Werkzeug | Einsatzzweck |
-|----------|-------------|
+|----------|--------------|
 | ChatGPT | Unterstützung bei der Ableitung und Formulierung der Softwarearchitektur |
 
-Alle generierten Inhalte werden vom Projektteam geprüft, inhaltlich diskutiert
-und an die tatsächliche Implementierung und Spezifikation angepasst.
+Alle generierten Inhalte werden vom Projektteam geprüft, inhaltlich diskutiert und an die tatsächliche Implementierung und Spezifikation angepasst.

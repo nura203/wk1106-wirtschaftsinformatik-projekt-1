@@ -1,199 +1,260 @@
-# 12 — Glossar
+# 9 — Architekturentscheidungen
 
-Dieses Glossar erklärt die wichtigsten technischen und fachlichen Begriffe des Study Planers.
+Dieses Kapitel dokumentiert wesentliche Architekturentscheidungen des Study Planners.
 
-Die Begriffe orientieren sich an der Spezifikation und werden in Architektur, Backend und Frontend möglichst einheitlich verwendet.
+Die Entscheidungen werden als Architecture Decision Records (ADRs) festgehalten. Ein ADR beschreibt eine wichtige technische Entscheidung, den zugrunde liegenden Kontext, betrachtete Alternativen sowie die daraus entstehenden Konsequenzen.
 
----
-
-## 12.1 Fachliche Begriffe
-
-| Begriff | Erklärung |
-|---------|-----------|
-| **Assignment** | Eine Aufgabe mit einer festen Abgabefrist. |
-| **Deadline** | Das Datum, bis zu dem eine Aufgabe abgeschlossen sein soll. |
-| **Exam** | Eine institutionelle Prüfung, beispielsweise eine Klausur oder mündliche Prüfung. |
-| **Fortschritt** | Prozentualer Bearbeitungsstand einer Aufgabe zwischen 0 und 100 Prozent. |
-| **Goal** | Ein selbst gesetztes Lernziel des Studierenden. |
-| **Lernplan** | Vom System automatisch berechnete Übersicht über die empfohlenen Lernaktivitäten. |
-| **Lernsession** | Protokollierte Lerneinheit zu einer bestimmten Aufgabe. |
-| **Ownership** | Zuordnung einer Ressource zu dem Benutzer, dem diese Ressource gehört. |
-| **Reminder** | Eine konfigurierte Erinnerung an eine bevorstehende Deadline. |
-| **Study Planer** | Webbasierte Anwendung zur Planung und Organisation von Prüfungen, Abgaben und Lernzielen. |
-| **Task** | Eine Aufgabe des Studierenden. Eine Task kann beispielsweise eine Prüfung, eine Abgabe oder ein persönliches Lernziel darstellen. |
-| **UrgencyLevel** | Vom Backend berechnete Dringlichkeitsstufe einer Aufgabe. |
+Die ADRs sollen nachvollziehbar machen, warum bestimmte Technologien und Architekturansätze verwendet werden.
 
 ---
 
-## 12.2 Datenmodelltypen
+## ADR-001 — Backend-Technologie mit Java und Spring Boot
 
-Die folgenden fachlichen Datentypen definieren zulässige Ausprägungen von Eigenschaften des Datenmodells. Sie werden zur eindeutigen und konsistenten Darstellung von Aufgaben, deren Bearbeitungsstatus, Dringlichkeit und Erinnerungszustellung verwendet.
+**Status:** Accepted
 
-### TaskType
+### Kontext
 
-Beschreibt den Charakter einer Aufgabe.
+Der Study Planner benötigt ein Backend zur Verarbeitung der Geschäftslogik, zur Bereitstellung der REST-API, zur Authentifizierung und zur Kommunikation mit der PostgreSQL-Datenbank.
 
-| Wert | Bedeutung |
-|------|-----------|
-| `EXAM` | Prüfung |
-| `ASSIGNMENT` | Abgabe |
-| `GOAL` | Lernziel |
+Java 21 ist gemäß TECH-01 als technologische Randbedingung für das Backend vorgegeben. Die eigentliche Architekturentscheidung besteht daher in der Wahl eines geeigneten Frameworks innerhalb des Java-Ökosystems.
 
----
+Das Framework soll insbesondere REST, Security, JPA und eine Schichtenarchitektur mit Controller-, Service- und Repository-Schicht unterstützen.
 
-### TaskStatus
+### Betrachtete Optionen
 
-Beschreibt den Bearbeitungszustand einer Aufgabe.
+| Option | Beschreibung | Vorteile | Nachteile |
+|--------|-------------|----------|-----------|
+| **A: Spring Boot** | Weit verbreitetes Java-Framework mit umfangreichem Ökosystem. | Gute Integration mit Spring Web, Spring Security und Spring Data JPA; umfangreiche Dokumentation | Größere Anzahl an Abhängigkeiten und Konzepten |
+| **B: Quarkus** | Java-Framework mit Fokus auf schnelle Startzeiten und Cloud-/Containerbetrieb. | Schnelle Startzeiten, geringer Ressourcenverbrauch | Für das Team neues Programmiermodell und weniger Erfahrung im Projekt |
 
-| Wert | Bedeutung |
-|------|-----------|
-| `OPEN` | Aufgabe wurde noch nicht begonnen. |
-| `IN_PROGRESS` | Aufgabe wurde begonnen, ist aber noch nicht abgeschlossen. |
-| `DONE` | Aufgabe ist vollständig abgeschlossen. |
+### Entscheidung
 
-Der Status wird automatisch aus dem `progressPercent` abgeleitet.
+Das Backend wird mit **Java 21** und **Spring Boot** umgesetzt.
 
----
+Java 21 folgt dabei der vorgegebenen technischen Randbedingung TECH-01. Spring Boot wurde als Framework für die Umsetzung der REST-API, der Sicherheitsmechanismen und des Datenzugriffs gewählt.
 
-### UrgencyLevel
+Für die verschiedenen Aufgabenbereiche werden insbesondere folgende Spring-Komponenten eingesetzt:
 
-Beschreibt die Dringlichkeit einer offenen Aufgabe.
+- Spring Web für die REST-API
+- Spring Security für Authentifizierung und Autorisierung
+- Spring Data JPA für den Datenbankzugriff
 
-| Wert | Bedingung |
-|------|-----------|
-| `RED` | Deadline liegt höchstens 3 Tage entfernt. |
-| `YELLOW` | Deadline liegt mehr als 3 und höchstens 7 Tage entfernt. |
-| `GREEN` | Deadline liegt mehr als 7 Tage entfernt. |
+Die fachliche Verarbeitung erfolgt überwiegend in der Service-Schicht.
 
-`UrgencyLevel` wird nicht in der Datenbank gespeichert, sondern bei der Ausgabe einer Aufgabe serverseitig berechnet.
+### Konsequenzen
 
----
+**Positiv:**
 
-### ReminderChannel
+- klare Trennung der Verantwortlichkeiten
+- gute Unterstützung für REST-APIs
+- integrierte Sicherheitsmechanismen
+- gute Unterstützung für Datenbankzugriffe über JPA
+- Unterstützung für automatisierte Tests
+- geeignete Grundlage für eine modulare Backend-Struktur
 
-Beschreibt den Kanal, über den eine Erinnerung zugestellt wird.
+**Negativ:**
 
-| Wert | Bedeutung |
-|------|-----------|
-| `IN_APP` | Erinnerung innerhalb der Anwendung |
-| `EMAIL` | Erinnerung per E-Mail |
-| `BOTH` | In-App- und E-Mail-Erinnerung |
+- zusätzlicher initialer Konfigurationsaufwand
+- Spring bringt eine größere Anzahl an Abhängigkeiten und Konzepten mit
+- für ein kleines Projekt entsteht teilweise mehr Struktur als unbedingt notwendig
 
 ---
 
-## 12.3 Technische Begriffe
+## ADR-002 — PostgreSQL als relationale Datenbank
 
-| Begriff | Erklärung |
-|---------|-----------|
-| **API** | Application Programming Interface; definierte Schnittstelle zur Kommunikation zwischen Softwarekomponenten. |
-| **arc42** | Struktur zur Dokumentation der Softwarearchitektur eines Systems. |
-| **Architekturentscheidung** | Bewusste Entscheidung über eine wesentliche technische oder strukturelle Eigenschaft des Systems. |
-| **Authentifizierung** | Überprüfung der Identität eines Benutzers. |
-| **Autorisierung** | Prüfung, ob ein authentifizierter Benutzer eine bestimmte Aktion ausführen darf. |
-| **Axios** | HTTP-Client, der vom Frontend für die Kommunikation mit der REST-API verwendet werden kann. |
-| **Bausteinsicht** | Beschreibt die statische Zerlegung eines Systems in Komponenten und deren Beziehungen. |
-| **Bearer Token** | Authentifizierungs-Token, das über den HTTP-Header `Authorization` übertragen wird. |
-| **bcrypt** | Passwort-Hashing-Verfahren zur sicheren Speicherung von Passwörtern. |
-| **Container** | Isolierte Laufzeitumgebung für eine Anwendung und ihre Abhängigkeiten. |
-| **Controller** | Backend-Komponente, die HTTP-Anfragen entgegennimmt und an die fachliche Verarbeitung weiterleitet. |
-| **Docker** | Plattform zur Ausführung von Anwendungen in isolierten Containern. |
-| **Docker Compose** | Werkzeug zur Definition und gemeinsamen Ausführung mehrerer Container. |
-| **Docker Volume** | Persistenter Speicherbereich für Containerdaten. |
-| **DTO** | Data Transfer Object; Datenobjekt für den Austausch zwischen Frontend und Backend. |
-| **Flyway** | Werkzeug zur versionierten Verwaltung und Durchführung von Datenbankmigrationen. |
-| **Hibernate** | ORM-Framework, das die Abbildung von Java-Objekten auf relationale Datenbanktabellen ermöglicht. |
-| **iCalendar / iCal** | Standardformat zur Darstellung und zum Austausch von Kalenderdaten. |
-| **`.ics`** | Dateiendung für Dateien im iCalendar-Format. |
-| **JSON** | Textbasiertes Datenformat für den Austausch strukturierter Daten. |
-| **JWT** | JSON Web Token; signiertes Token zur Übertragung der authentifizierten Benutzeridentität. |
-| **Laufzeitsicht** | Beschreibt das Zusammenspiel der Komponenten während konkreter Abläufe. |
-| **Migration** | Kontrollierte Änderung des Datenbankschemas. Sie bezeichnet den Vorgang der Schemaanpassung selbst. |
-| **Migration Script** | Konkrete Datei, die eine einzelne Datenbankmigration beschreibt und z. B. von Flyway ausgeführt wird. |
-| **Nachbarsystem** | Externes System, mit dem die Anwendung kommuniziert. |
-| **Ownership-Prüfung** | Prüfung, ob eine angeforderte Ressource dem aktuell authentifizierten Benutzer gehört. |
-| **PostgreSQL** | Relationale Open-Source-Datenbank, die im Study Planer zur persistenten Speicherung verwendet wird. |
-| **Querschnittliches Konzept** | Konzept, das mehrere Komponenten oder Architekturbausteine betrifft. |
-| **React** | JavaScript-/TypeScript-Bibliothek zur Erstellung komponentenbasierter Benutzeroberflächen. |
-| **Repository** | Abstraktion für den Zugriff auf persistierte Daten. |
-| **REST** | Architekturstil für Webschnittstellen, bei dem Ressourcen über HTTP-Methoden angesprochen werden. |
-| **REST-API** | Über HTTP erreichbare Programmierschnittstelle des Backends. |
-| **Responsive Design** | Gestaltung einer Benutzeroberfläche, die sich an unterschiedliche Bildschirmgrößen anpasst. |
-| **RFC 5545** | Standard, der das iCalendar-Format definiert. |
-| **Scheduler** | Automatisch ausgeführter Prozess, der zu festgelegten Zeitpunkten Aufgaben ausführt. |
-| **Secret** | Sensibler Konfigurationswert, beispielsweise ein JWT-Secret oder Passwort. |
-| **Service (Backend)** | Backend-Komponente, die die fachliche Geschäftslogik implementiert. |
-| **Service (Docker Compose)** | Einzelne technische Komponente innerhalb eines Docker-Compose-Setups. |
-| **SMTP** | Simple Mail Transfer Protocol zur Übertragung von E-Mails. |
-| **SPA (Single Page Application)** | Webanwendung, bei der die Benutzeroberfläche innerhalb einer Seite dynamisch aktualisiert wird. |
-| **Spring Boot** | Framework zur Entwicklung der Java-basierten Backend-Anwendung. |
-| **Spring Data JPA** | Spring-Technologie zur Vereinfachung des Zugriffs auf relationale Datenbanken über JPA. |
-| **Spring Security** | Spring-Komponente zur Umsetzung von Authentifizierung und Autorisierung. |
-| **STARTTLS** | Verfahren, mit dem eine bestehende Verbindung auf eine verschlüsselte TLS-Verbindung erweitert wird. |
-| **TLS** | Protokoll zur verschlüsselten und authentifizierten Kommunikation über Netzwerke. |
-| **TypeScript** | Programmiersprache beziehungsweise Erweiterung von JavaScript mit statischer Typisierung. |
-| **UUID** | Universally Unique Identifier zur eindeutigen Identifikation von Objekten. |
-| **Verteilungssicht** | Beschreibt, auf welchen technischen Knoten beziehungsweise Containern die Systemkomponenten ausgeführt werden. |
-| **XSS** | Cross-Site Scripting; Angriff, bei dem schädlicher Code in eine Webanwendung eingeschleust werden kann. |
+**Status:** Accepted
+
+### Kontext
+
+Der Study Planner muss Benutzer, Aufgaben, Unteraufgaben, Lernsessions und Reminder dauerhaft speichern.
+
+Zwischen diesen Entitäten bestehen klare Beziehungen, beispielsweise zwischen einem Benutzer und seinen Aufgaben sowie zwischen Aufgaben und Lernsessions.
+
+### Betrachtete Optionen
+
+| Option | Beschreibung | Vorteile | Nachteile |
+|--------|-------------|----------|-----------|
+| **A: PostgreSQL** | Relationale Open-Source-Datenbank mit umfangreicher SQL-Unterstützung. | Gute Integration mit Hibernate und Spring Data JPA; Unterstützung für UUID; gut mit Docker und Flyway kombinierbar | Für sehr einfache Datenmodelle potenziell überdimensioniert |
+| **B: MySQL / MariaDB** | Weit verbreitete relationale Open-Source-Datenbanken. | Große Verbreitung und gute JPA-Unterstützung | Für das Projekt wäre ein Wechsel der Datenbanktechnologie ohne konkreten Vorteil verbunden |
+
+### Entscheidung
+
+Als relationale Datenbank wird **PostgreSQL** verwendet.
+
+Das Datenmodell ist stark relational und enthält klare Beziehungen und Fremdschlüssel. Eine relationale Datenbank passt daher zur Struktur des Datenmodells.
+
+PostgreSQL bietet außerdem eine gute Integration mit Spring Data JPA und Hibernate und lässt sich als Docker-Container betreiben.
+
+### Konsequenzen
+
+**Positiv:**
+
+- relationale Datenstruktur passt zum Datenmodell
+- Unterstützung von Primär- und Fremdschlüsseln
+- Unterstützung von Transaktionen
+- gute Integration mit Spring Data JPA
+- Betrieb als Docker-Container möglich
+- Flyway ermöglicht nachvollziehbare Schemaänderungen
+
+**Negativ:**
+
+- zusätzlicher Aufwand für Datenbankschema und Migrationen
+- ORM-Abstraktion durch JPA kann bei komplexen Abfragen zusätzlichen Aufwand verursachen
+- Datenbank muss für den Betrieb bereitgestellt werden
 
 ---
 
-## 12.4 Dokumentationsbegriffe
+## ADR-003 — JWT-basierte stateless Authentifizierung
 
-| Begriff | Erklärung |
-|---------|-----------|
-| **Spec** | Fachliche und technische Spezifikation des Study Planers. |
-| **Use Case (UC)** | Beschreibung einer konkreten Interaktion zwischen Benutzer beziehungsweise Akteur und System. |
-| **AF** | Application Function beziehungsweise Anwendungsfunktion. |
-| **NFR** | Non-Functional Requirement beziehungsweise nichtfunktionale Anforderung. |
-| **ADR** | Architecture Decision Record zur Dokumentation einer Architekturentscheidung. |
-| **MVP** | Minimum Viable Product; kleinste funktionsfähige Version des Systems mit den notwendigen Muss-Funktionen. |
+**Status:** Accepted
+
+### Kontext
+
+Der Study Planner benötigt eine Authentifizierung, damit Benutzer sich registrieren und anmelden können und anschließend ausschließlich auf ihre eigenen geschützten Ressourcen zugreifen können.
+
+Da das Backend als REST-API mit einem SPA-Frontend umgesetzt wird, soll die Authentifizierung zustandslos erfolgen.
+
+### Betrachtete Optionen
+
+| Option | Beschreibung | Vorteile | Nachteile |
+|--------|-------------|----------|-----------|
+| **A: JWT (stateless)** | Signierte Tokens enthalten die Benutzeridentität und Gültigkeitsinformationen. | Keine serverseitige Session-Verwaltung erforderlich; gut für REST/SPA geeignet | Token müssen sicher gespeichert werden; Widerruf vor Ablauf ist komplexer |
+| **B: Session-Cookies** | Serverseitige Sessions werden über Cookies referenziert. | Einfache serverseitige Verwaltung und Invalidation | Server muss Session-Zustand verwalten |
+| **C: OAuth2 / OpenID Connect** | Authentifizierung über einen externen Identity Provider. | Externe Authentifizierung und weniger eigene Passwortverwaltung | Zusätzliche externe Abhängigkeit und höherer Konfigurationsaufwand |
+
+### Entscheidung
+
+Die Anwendung verwendet **JSON Web Tokens (JWT)** zur Authentifizierung.
+
+JWT ist stateless und eignet sich damit für die REST-API mit SPA-Frontend.
+
+Die Benutzer-ID wird als UUID im JWT gespeichert. Die Ownership-Prüfung verwendet die authentifizierte Benutzer-ID, um den Zugriff auf benutzerspezifische Ressourcen zu kontrollieren.
+
+### Konsequenzen
+
+**Positiv:**
+
+- stateless Authentifizierung
+- keine klassische serverseitige Session-Verwaltung
+- gut für REST-APIs geeignet
+- Benutzeridentität kann aus dem Token ermittelt werden
+- Backend kann grundsätzlich horizontal erweitert werden, ohne Session-Zustände zwischen Instanzen synchronisieren zu müssen
+
+**Negativ:**
+
+- Token müssen sicher gespeichert werden
+- ein gestohlenes Token kann bis zum Ablauf verwendet werden
+- Logout und Token-Widerruf sind bei stateless JWTs aufwändiger als bei serverseitigen Sessions
+- zusätzlicher Sicherheitsaufwand bei der Token-Verwaltung
+
+Im aktuellen Implementierungsstand beträgt die Token-Gültigkeit **24 Stunden**.
+
+Das JWT verwendet **HS256**. Die Benutzer-ID wird als UUID im `subject` des Tokens gespeichert.
 
 ---
 
-## 12.5 Abkürzungsverzeichnis
+## ADR-004 — React und TypeScript für das Frontend
 
-| Abkürzung | Bedeutung |
-|-----------|-----------|
-| API | Application Programming Interface |
-| ADR | Architecture Decision Record |
-| AF | Application Function |
-| DTO | Data Transfer Object |
-| FK | Foreign Key |
-| HTTP | Hypertext Transfer Protocol |
-| HTTPS | Hypertext Transfer Protocol Secure |
-| JWT | JSON Web Token |
-| JPA | Java Persistence API |
-| MVP | Minimum Viable Product |
-| NFR | Non-Functional Requirement |
-| ORM | Object-Relational Mapping |
-| PK | Primary Key |
-| REST | Representational State Transfer |
-| SMTP | Simple Mail Transfer Protocol |
-| SPA | Single Page Application |
-| TLS | Transport Layer Security |
-| UC | Use Case |
-| UI | User Interface |
-| UUID | Universally Unique Identifier |
+**Status:** Accepted
+
+### Kontext
+
+Der Study Planner benötigt eine webbasierte Benutzeroberfläche zur Verwaltung von Aufgaben, zur Anzeige des Lernplans und zur Darstellung des Lernfortschritts.
+
+Die Anwendung soll auf unterschiedlichen Bildschirmgrößen nutzbar sein.
+
+### Betrachtete Optionen
+
+| Option | Beschreibung | Vorteile | Nachteile |
+|--------|-------------|----------|-----------|
+| **A: React + TypeScript** | Komponentenbasierte SPA mit statischer Typisierung. | Gute TypeScript-Integration, komponentenbasierte Entwicklung und großes Ökosystem | Zusätzlicher Build- und Tooling-Aufwand |
+| **B: Vue.js + TypeScript** | Progressives Framework mit komponentenbasierter Architektur. | Komponentenbasierte Entwicklung und vergleichsweise einfacher Einstieg | Für das Team weniger Erfahrung |
+| **C: Angular** | Vollständiges Framework mit umfangreicher Projektstruktur. | Viele Funktionen und Werkzeuge integriert | Höherer Umfang und zusätzlicher Lernaufwand für ein kleines Projekt |
+
+### Entscheidung
+
+Das Frontend wird als **React Single Page Application (SPA)** mit **TypeScript** umgesetzt.
+
+TypeScript bildet die fachlichen Datenstrukturen des Backends im Frontend ab und unterstützt dadurch die Typenkonsistenz.
+
+React ermöglicht eine komponentenbasierte und interaktive Benutzeroberfläche.
+
+### Konsequenzen
+
+**Positiv:**
+
+- komponentenbasierte Benutzeroberfläche
+- gute Wiederverwendbarkeit von UI-Komponenten
+- TypeScript ermöglicht statische Typprüfung
+- geeignet für interaktive Anwendungen
+- klare Trennung zwischen Frontend und REST-API
+- responsive Umsetzung möglich
+
+**Negativ:**
+
+- zusätzlicher Build- und Tooling-Aufwand
+- React und TypeScript benötigen Einarbeitung
+- Frontend und Backend müssen bei API-Änderungen konsistent gehalten werden
 
 ---
 
-## 12.6 Konsistente Verwendung
+## ADR-005 — Containerisierung mit Docker Compose
 
-Die in diesem Glossar definierten Begriffe sollen im weiteren Projektverlauf einheitlich verwendet werden.
+**Status:** Accepted
 
-Insbesondere sollen die Bezeichnungen aus der Spezifikation nicht ohne fachlichen Grund im Code oder in der Architekturdokumentation geändert werden.
+### Kontext
 
-Dies betrifft insbesondere:
+Die Anwendung besteht aus mehreren technischen Komponenten, insbesondere Frontend, Backend und PostgreSQL-Datenbank.
 
-- `Task`
-- `TaskType`
-- `TaskStatus`
-- `UrgencyLevel`
-- `LearningPlanDTO`
-- `CreateTaskRequest`
-- `UpdateProgressRequest`
-- `Reminder`
-- `LearningSession`
-- `Ownership`
+Für die Abgabe soll die Anwendung möglichst einfach gestartet werden können, ohne dass Java, Node.js oder PostgreSQL manuell auf dem Rechner installiert werden müssen.
 
-Dadurch bleibt die Verbindung zwischen Spezifikation, Architektur und Implementierung nachvollziehbar.
+### Betrachtete Optionen
+
+| Option | Beschreibung | Vorteile | Nachteile |
+|--------|-------------|----------|-----------|
+| **A: Docker Compose** | Verwaltung der benötigten Container als gemeinsamer Anwendungsverbund. | Einheitlicher Start der Komponenten; keine manuelle Installation von Java, Node.js und PostgreSQL erforderlich | Docker ist als zusätzliche Voraussetzung erforderlich |
+| **B: Manuelle lokale Installation** | Java, Node.js und PostgreSQL werden direkt auf dem Rechner installiert. | Kein Docker erforderlich | Unterschiedliche lokale Versionen können zu Umgebungsproblemen führen; höherer Einrichtungsaufwand |
+| **C: Kubernetes** | Container-Orchestrierungsplattform für umfangreichere Deployments. | Geeignet für komplexe Containerlandschaften | Für den Umfang des Study Planners unnötig komplex |
+
+### Entscheidung
+
+Die Anwendung wird mit **Docker Compose** containerisiert.
+
+Die Randbedingungen **TECH-02** und **TECH-04** unterstützen diese Entscheidung:
+
+- **TECH-02:** Die Anwendung muss über Docker Compose gestartet werden können.
+- **TECH-04:** Für den vorgesehenen Betrieb sollen kein lokal installiertes Java und Node.js erforderlich sein.
+
+Die drei zentralen Komponenten werden als separate Docker-Compose-Services betrieben:
+
+- Frontend
+- Backend
+- PostgreSQL
+
+Die zentrale Compose-Konfiguration befindet sich im Projektstamm:
+
+```text
+docker-compose.yml
+```
+
+Der Start der vollständigen Anwendung erfolgt aus dem Projektstamm mit:
+
+```powershell
+docker compose up --build
+```
+
+### Konsequenzen
+
+**Positiv:**
+
+- einheitlicher Start der Anwendung
+- reproduzierbare Laufzeitumgebung
+- keine lokale Installation von Java, Node.js oder PostgreSQL für den vorgesehenen Betrieb erforderlich
+- klare Trennung der technischen Komponenten
+- PostgreSQL-Daten können über ein Docker-Volume persistent gespeichert werden
+
+**Negativ:**
+
+- Docker Desktop bzw. eine Docker-Umgebung ist erforderlich
+- Containerisierung erhöht die Komplexität gegenüber einem direkten lokalen Start
+- Docker-Ressourcen wie CPU, Arbeitsspeicher und Speicherplatz werden benötigt

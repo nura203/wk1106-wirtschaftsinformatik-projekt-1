@@ -1,8 +1,8 @@
 # 9 — Architekturentscheidungen
 
-Dieses Kapitel dokumentiert wesentliche Architekturentscheidungen des Study Planers.
+Dieses Kapitel dokumentiert wesentliche Architekturentscheidungen des Study Planners.
 
-Die Entscheidungen werden als Architecture Decision Records (ADRs) festgehalten. Ein ADR beschreibt eine wichtige technische Entscheidung, den zugrunde liegenden Kontext sowie die daraus entstehenden Konsequenzen.
+Die Entscheidungen werden als Architecture Decision Records (ADRs) festgehalten. Ein ADR beschreibt eine wichtige technische Entscheidung, den zugrunde liegenden Kontext, betrachtete Alternativen sowie die daraus entstehenden Konsequenzen.
 
 Die ADRs sollen nachvollziehbar machen, warum bestimmte Technologien und Architekturansätze verwendet werden.
 
@@ -14,27 +14,30 @@ Die ADRs sollen nachvollziehbar machen, warum bestimmte Technologien und Archite
 
 ### Kontext
 
-Der Study Planer benötigt ein Backend zur Verarbeitung der Geschäftslogik, zur Bereitstellung der REST-API, zur Authentifizierung und zur Kommunikation mit der PostgreSQL-Datenbank.
+Der Study Planner benötigt ein Backend zur Verarbeitung der Geschäftslogik, zur Bereitstellung der REST-API, zur Authentifizierung und zur Kommunikation mit der PostgreSQL-Datenbank.
 
-Java 21 ist gemäß TECH-01 als technologische Randbedingung für das Backend vorgegeben. Die Architekturentscheidung beschränkt sich daher auf die Wahl eines Frameworks innerhalb des Java-Ökosystems, das REST, Security, JPA und eine Schichtenarchitektur (Controller / Service / Repository) unterstützt.
+Java 21 ist gemäß TECH-01 als technologische Randbedingung für das Backend vorgegeben. Die eigentliche Architekturentscheidung besteht daher in der Wahl eines geeigneten Frameworks innerhalb des Java-Ökosystems.
+
+Das Framework soll insbesondere REST, Security, JPA und eine Schichtenarchitektur mit Controller-, Service- und Repository-Schicht unterstützen.
 
 ### Betrachtete Optionen
 
 | Option | Beschreibung | Vorteile | Nachteile |
 |--------|-------------|----------|-----------|
-| **A: Spring Boot** | Weit verbreitetes Java-Framework mit umfangreichem Ökosystem (Web, Security, Data, Scheduling). | • Größte Community und umfassendste Dokumentation im Java-Bereich<br>• Nahtlose Integration mit Spring Security, Spring Data JPA und Spring Scheduling | • Höherer initialer Konfigurationsaufwand<br>• Größere Anzahl an Abhängigkeiten |
-| **B: Quarkus** | Kubernetes-natives Java-Framework mit Fokus auf schnelle Startup-Zeiten. | • Sehr schneller Start, geringerer Speicherbedarf<br> | • Kleinere Community, weniger Tutorials<br>• Anderes Programmiermodell, für das Team komplett neu |
+| **A: Spring Boot** | Weit verbreitetes Java-Framework mit umfangreichem Ökosystem. | Gute Integration mit Spring Web, Spring Security und Spring Data JPA; umfangreiche Dokumentation | Größere Anzahl an Abhängigkeiten und Konzepten |
+| **B: Quarkus** | Java-Framework mit Fokus auf schnelle Startzeiten und Cloud-/Containerbetrieb. | Schnelle Startzeiten, geringer Ressourcenverbrauch | Für das Team neues Programmiermodell und weniger Erfahrung im Projekt |
 
 ### Entscheidung
 
 Das Backend wird mit **Java 21** und **Spring Boot** umgesetzt.
+
+Java 21 folgt dabei der vorgegebenen technischen Randbedingung TECH-01. Spring Boot wurde als Framework für die Umsetzung der REST-API, der Sicherheitsmechanismen und des Datenzugriffs gewählt.
 
 Für die verschiedenen Aufgabenbereiche werden insbesondere folgende Spring-Komponenten eingesetzt:
 
 - Spring Web für die REST-API
 - Spring Security für Authentifizierung und Autorisierung
 - Spring Data JPA für den Datenbankzugriff
-- Spring Scheduling für den Reminder-Scheduler
 
 Die fachliche Verarbeitung erfolgt überwiegend in der Service-Schicht.
 
@@ -47,11 +50,11 @@ Die fachliche Verarbeitung erfolgt überwiegend in der Service-Schicht.
 - integrierte Sicherheitsmechanismen
 - gute Unterstützung für Datenbankzugriffe über JPA
 - Unterstützung für automatisierte Tests
-- geeignet für eine modulare Backend-Struktur
+- geeignete Grundlage für eine modulare Backend-Struktur
 
 **Negativ:**
 
-- relativ hoher initialer Konfigurationsaufwand
+- zusätzlicher initialer Konfigurationsaufwand
 - Spring bringt eine größere Anzahl an Abhängigkeiten und Konzepten mit
 - für ein kleines Projekt entsteht teilweise mehr Struktur als unbedingt notwendig
 
@@ -63,7 +66,7 @@ Die fachliche Verarbeitung erfolgt überwiegend in der Service-Schicht.
 
 ### Kontext
 
-Der Study Planer muss Benutzer, Aufgaben, Unteraufgaben, Lernsessions und Reminder dauerhaft speichern.
+Der Study Planner muss Benutzer, Aufgaben, Unteraufgaben, Lernsessions und Reminder dauerhaft speichern.
 
 Zwischen diesen Entitäten bestehen klare Beziehungen, beispielsweise zwischen einem Benutzer und seinen Aufgaben sowie zwischen Aufgaben und Lernsessions.
 
@@ -71,15 +74,16 @@ Zwischen diesen Entitäten bestehen klare Beziehungen, beispielsweise zwischen e
 
 | Option | Beschreibung | Vorteile | Nachteile |
 |--------|-------------|----------|-----------|
-| **A: PostgreSQL** | Relationale Open-Source-Datenbank mit starkem SQL-Standard und guter JPA-Unterstützung. | • Hervorragende Integration mit Hibernate / Spring Data JPA<br>• Gute Unterstützung für UUID und Docker/Flyway<br>• Open Source, keine Lizenzkosten | • Für sehr einfache Datenmodelle potenziell überdimensioniert • ORM-Abstraktion kann bei komplexen Abfragen zusätzlichen Aufwand verursachen |
-| **B: MySQL / MariaDB** | Weit verbreitete relationale Open-Source-Datenbank. | • Sehr große Verbreitung, viele Hosting-Angebote<br>• Gute JPA-Unterstützung | • MySQL unterliegt der Oracle-Lizenzpolitik<br>• UUID- und JSON-Unterstützung weniger ausgereift als bei PostgreSQL |
+| **A: PostgreSQL** | Relationale Open-Source-Datenbank mit umfangreicher SQL-Unterstützung. | Gute Integration mit Hibernate und Spring Data JPA; Unterstützung für UUID; gut mit Docker und Flyway kombinierbar | Für sehr einfache Datenmodelle potenziell überdimensioniert |
+| **B: MySQL / MariaDB** | Weit verbreitete relationale Open-Source-Datenbanken. | Große Verbreitung und gute JPA-Unterstützung | Für das Projekt wäre ein Wechsel der Datenbanktechnologie ohne konkreten Vorteil verbunden |
 
 ### Entscheidung
 
-Als Datenbank wird **PostgreSQL** verwendet. Die Entscheidung basiert auf folgenden Faktoren:
+Als relationale Datenbank wird **PostgreSQL** verwendet.
 
-- Das Datenmodell (siehe [D1](../spec/D1-datenmodell.md)) ist stark relational mit klaren 1:n-Beziehungen und Fremdschlüsseln. Eine relationale Datenbank ist daher die natürliche Wahl.
-- PostgreSQL bietet die beste und stabilste Integration mit Spring Data JPA und Hibernate, was die Entwicklung der Repository-Schicht erheblich vereinfacht. MySQL wäre hier ebenfalls möglich, aber PostgreSQL ist SQL-standardkonformer und bietet bessere Unterstützung für UUIDs (Primärschlüsseltyp in D1).
+Das Datenmodell ist stark relational und enthält klare Beziehungen und Fremdschlüssel. Eine relationale Datenbank passt daher zur Struktur des Datenmodells.
+
+PostgreSQL bietet außerdem eine gute Integration mit Spring Data JPA und Hibernate und lässt sich als Docker-Container betreiben.
 
 ### Konsequenzen
 
@@ -87,9 +91,9 @@ Als Datenbank wird **PostgreSQL** verwendet. Die Entscheidung basiert auf folgen
 
 - relationale Datenstruktur passt zum Datenmodell
 - Unterstützung von Primär- und Fremdschlüsseln
-- Transaktionen werden unterstützt
+- Unterstützung von Transaktionen
 - gute Integration mit Spring Data JPA
-- Datenbank kann als Docker-Container betrieben werden
+- Betrieb als Docker-Container möglich
 - Flyway ermöglicht nachvollziehbare Schemaänderungen
 
 **Negativ:**
@@ -106,42 +110,46 @@ Als Datenbank wird **PostgreSQL** verwendet. Die Entscheidung basiert auf folgen
 
 ### Kontext
 
-Der Study Planer benötigt eine Authentifizierung, damit Benutzer sich registrieren und anmelden können und anschließend ausschließlich auf ihre eigenen Aufgaben zugreifen können.
+Der Study Planner benötigt eine Authentifizierung, damit Benutzer sich registrieren und anmelden können und anschließend ausschließlich auf ihre eigenen geschützten Ressourcen zugreifen können.
 
-Da das Backend als REST-API umgesetzt wird, soll die Authentifizierung möglichst zustandslos erfolgen.
+Da das Backend als REST-API mit einem SPA-Frontend umgesetzt wird, soll die Authentifizierung zustandslos erfolgen.
 
 ### Betrachtete Optionen
 
 | Option | Beschreibung | Vorteile | Nachteile |
 |--------|-------------|----------|-----------|
-| **A: JWT (stateless)** | Signierte Tokens, die Benutzeridentität und Gültigkeitsdauer enthalten. | • Vollständig stateless, keine Session-Verwaltung nötig<br>• Passt direkt zu REST/SPA (`Authorization: Bearer`) | • Token müssen sicher gespeichert werden<br>• Widerruf vor Ablauf ist komplexer |
-| **B: Session-Cookies** | Serverseitige Sessions, referenziert über ein Cookie. | • Einfache Invalidation beim Logout<br>• Geringeres Risiko bei Token-Diebstahl | • Zustandsbehaftet, Backend muss Session-Status speichern<br>• Skaliert schlechter für entkoppelte REST-APIs |
-| **C: OAuth2 / OpenID Connect** | Delegation der Authentifizierung an einen externen Provider (z. B. Google, Keycloak). | • Passwörter werden nicht selbst gespeichert<br>• Benutzer können bestehende Accounts wiederverwenden | • Externe Abhängigkeit (Internet, Provider-Verfügbarkeit)<br>• Deutlich komplexere Konfiguration, für ein MVP überdimensioniert |
+| **A: JWT (stateless)** | Signierte Tokens enthalten die Benutzeridentität und Gültigkeitsinformationen. | Keine serverseitige Session-Verwaltung erforderlich; gut für REST/SPA geeignet | Token müssen sicher gespeichert werden; Widerruf vor Ablauf ist komplexer |
+| **B: Session-Cookies** | Serverseitige Sessions werden über Cookies referenziert. | Einfache serverseitige Verwaltung und Invalidation | Server muss Session-Zustand verwalten |
+| **C: OAuth2 / OpenID Connect** | Authentifizierung über einen externen Identity Provider. | Externe Authentifizierung und weniger eigene Passwortverwaltung | Zusätzliche externe Abhängigkeit und höherer Konfigurationsaufwand |
 
 ### Entscheidung
 
 Die Anwendung verwendet **JSON Web Tokens (JWT)** zur Authentifizierung.
 
-JWT ist stateless und damit die natürliche Wahl für eine REST-API mit SPA-Frontend. Die Ownership-Prüfung (**[NFR-12-03](../spec/N1-nichtfunktionale-anforderungen.md)**) wird durch die direkte Auslesbarkeit der `userId` aus dem Token vereinfacht. Session-Cookies erfordern einen serverseitigen Session-Store; OAuth2 ist für ein Einzelnutzer-MVP überdimensioniert.
+JWT ist stateless und eignet sich damit für die REST-API mit SPA-Frontend.
+
+Die Benutzer-ID wird als UUID im JWT gespeichert. Die Ownership-Prüfung verwendet die authentifizierte Benutzer-ID, um den Zugriff auf benutzerspezifische Ressourcen zu kontrollieren.
 
 ### Konsequenzen
 
 **Positiv:**
 
 - stateless Authentifizierung
-- Backend muss keine klassische Session verwalten
+- keine klassische serverseitige Session-Verwaltung
 - gut für REST-APIs geeignet
 - Benutzeridentität kann aus dem Token ermittelt werden
-- horizontale Erweiterung des Backends wird erleichtert
+- Backend kann grundsätzlich horizontal erweitert werden, ohne Session-Zustände zwischen Instanzen synchronisieren zu müssen
 
 **Negativ:**
 
 - Token müssen sicher gespeichert werden
 - ein gestohlenes Token kann bis zum Ablauf verwendet werden
-- Logout und Token-Widerruf sind bei stateless JWTs komplexer als bei serverseitigen Sessions
+- Logout und Token-Widerruf sind bei stateless JWTs aufwändiger als bei serverseitigen Sessions
 - zusätzlicher Sicherheitsaufwand bei der Token-Verwaltung
 
-Für das MVP wird eine Token-Gültigkeit von 24 Stunden vorgesehen.
+Im aktuellen Implementierungsstand beträgt die Token-Gültigkeit **24 Stunden**.
+
+Das JWT verwendet **HS256**. Die Benutzer-ID wird als UUID im `subject` des Tokens gespeichert.
 
 ---
 
@@ -151,23 +159,25 @@ Für das MVP wird eine Token-Gültigkeit von 24 Stunden vorgesehen.
 
 ### Kontext
 
-Der Study Planer benötigt eine webbasierte Benutzeroberfläche zur Verwaltung von Aufgaben, zur Anzeige des Lernplans und zur Darstellung des Lernfortschritts.
+Der Study Planner benötigt eine webbasierte Benutzeroberfläche zur Verwaltung von Aufgaben, zur Anzeige des Lernplans und zur Darstellung des Lernfortschritts.
 
-Die Anwendung soll sowohl auf Desktop-Geräten als auch auf mobilen Geräten nutzbar sein.
+Die Anwendung soll auf unterschiedlichen Bildschirmgrößen nutzbar sein.
 
 ### Betrachtete Optionen
 
 | Option | Beschreibung | Vorteile | Nachteile |
 |--------|-------------|----------|-----------|
-| **A: React + TypeScript** | Komponentenbasierte SPA-Bibliothek mit statischer Typisierung. | • Größtes Ökosystem und beste Community-Unterstützung<br>• Hervorragende TypeScript-Integration<br> | • Erfordert Build-Tooling (Vite, Webpack) |
-| **B: Vue.js + TypeScript** | Progressives Framework mit komponentenbasierter Architektur. | • Geringere Lernkurve als React | • Kleinere Community als React<br> |
-| **C: Angular** | Full-Framework mit allen benötigten Werkzeugen out-of-the-box. | • Komplettes Framework, einheitliche Projektstruktur | • Sehr steile Lernkurve<br>• Hoher Overhead für ein kleines MVP |
+| **A: React + TypeScript** | Komponentenbasierte SPA mit statischer Typisierung. | Gute TypeScript-Integration, komponentenbasierte Entwicklung und großes Ökosystem | Zusätzlicher Build- und Tooling-Aufwand |
+| **B: Vue.js + TypeScript** | Progressives Framework mit komponentenbasierter Architektur. | Komponentenbasierte Entwicklung und vergleichsweise einfacher Einstieg | Für das Team weniger Erfahrung |
+| **C: Angular** | Vollständiges Framework mit umfangreicher Projektstruktur. | Viele Funktionen und Werkzeuge integriert | Höherer Umfang und zusätzlicher Lernaufwand für ein kleines Projekt |
 
 ### Entscheidung
 
 Das Frontend wird als **React Single Page Application (SPA)** mit **TypeScript** umgesetzt.
 
-TypeScript bildet die Backend-DTOs (z. B. `TaskDTO`, `LearningPlanDTO`) exakt ab und stellt so die Typenkonsistenz sicher. React ist die am weitesten verbreitete Frontend-Technologie; die größte Community minimiert das Risiko bei fehlenden Vorkenntnissen im Team. Vue und Angular wurden aufgrund der geringeren Verbreitung und Dokumentationslage verworfen.
+TypeScript bildet die fachlichen Datenstrukturen des Backends im Frontend ab und unterstützt dadurch die Typenkonsistenz.
+
+React ermöglicht eine komponentenbasierte und interaktive Benutzeroberfläche.
 
 ### Konsequenzen
 
@@ -177,7 +187,7 @@ TypeScript bildet die Backend-DTOs (z. B. `TaskDTO`, `LearningPlanDTO`) exakt ab
 - gute Wiederverwendbarkeit von UI-Komponenten
 - TypeScript ermöglicht statische Typprüfung
 - geeignet für interaktive Anwendungen
-- REST-API kann klar vom Frontend getrennt werden
+- klare Trennung zwischen Frontend und REST-API
 - responsive Umsetzung möglich
 
 **Negativ:**
@@ -202,81 +212,29 @@ Für die Abgabe soll die Anwendung möglichst einfach gestartet werden können, 
 
 | Option | Beschreibung | Vorteile | Nachteile |
 |--------|-------------|----------|-----------|
-| **A: Docker Compose** | Multi-Container-Orchestrierung für lokale Entwicklung und Betrieb. | • Kein manuelles Installieren von Java, Node.js, PostgreSQL nötig | • Docker als zusätzliche Voraussetzung erforderlich |
-| **B: Manuelle lokale Installation** | Jedes Teammitglied installiert Java, Node.js und PostgreSQL lokal. | • Keine Docker-Abhängigkeit | • "Works on my machine"-Probleme duch unterschiedliche Versionen<br>• Aufwändigere Einrichtung für den Betreuer |
-| **C: Kubernetes** | Container-Orchestrierungsplattform für automatisiertes Deployment. | • Industriestandard für Produktivsysteme | • Viel zu komplex für ein Uni-Projekt mit drei Containern<br>• Steile Lernkurve, Team kennt es nicht |
+| **A: Docker Compose** | Verwaltung der benötigten Container als gemeinsamer Anwendungsverbund. | Einheitlicher Start der Komponenten; keine manuelle Installation von Java, Node.js und PostgreSQL erforderlich | Docker ist als zusätzliche Voraussetzung erforderlich |
+| **B: Manuelle lokale Installation** | Java, Node.js und PostgreSQL werden direkt auf dem Rechner installiert. | Kein Docker erforderlich | Unterschiedliche lokale Versionen können zu Umgebungsproblemen führen; höherer Einrichtungsaufwand |
+| **C: Kubernetes** | Container-Orchestrierungsplattform für umfangreichere Deployments. | Geeignet für komplexe Containerlandschaften | Für den Umfang des Study Planners unnötig komplex |
 
 ### Entscheidung
 
-Die Anwendung wird mit **Docker Compose** containerisiert. 
+Die Anwendung wird mit **Docker Compose** containerisiert.
 
-Die Randbedingungen **TECH-02** (`docker compose up --build` als Startvorschrift) und **TECH-04** (kein lokales Java oder Node.js für den Betrieb) schließen eine manuelle Installation aus. Kubernetes ist für drei statische Container überdimensioniert. Docker Compose ist daher die einzige praktikable Option, die alle Randbedingungen erfüllt und gleichzeitig den geringsten Betriebsaufwand verursacht.
+Die Randbedingungen **TECH-02** und **TECH-04** unterstützen diese Entscheidung:
 
-Die einzelnen Komponenten werden als separate Services betrieben.
+- **TECH-02:** Die Anwendung muss aus dem Verzeichnis `backend` mit `docker compose up --build` gestartet werden können.
+- **TECH-04:** Für den Betrieb der Anwendung sollen kein lokal installiertes Java und Node.js erforderlich sein.
 
-Der Start der Anwendung erfolgt über:
+Die drei zentralen Komponenten werden als separate Docker-Compose-Services betrieben:
+
+- Frontend
+- Backend
+- PostgreSQL
+
+Die Compose-Konfiguration befindet sich im Verzeichnis `backend`.
+
+Der Start der Anwendung erfolgt aus diesem Verzeichnis mit:
 
 ```bash
+cd backend
 docker compose up --build
-```
-
-### Konsequenzen
-
-**Positiv:**
-
-- einheitliche Entwicklungs- und Laufzeitumgebung
-- keine manuelle Installation von Java, Node.js oder PostgreSQL notwendig
-- einfacher Start der Gesamtanwendung
-- klare Trennung der Services
-- reproduzierbarer Betrieb
-- Datenpersistenz über Docker Volume
-
-**Negativ:**
-
-- Docker ist als zusätzliche Voraussetzung erforderlich
-- Containerisierung erhöht die Komplexität der Entwicklungsumgebung
-- Fehler in Docker-Netzwerken oder Volumes können die Fehlersuche erschweren
-- Docker benötigt zusätzliche Systemressourcen
-
----
-
-## 9.1 Übersicht der Architekturentscheidungen
-
-| ADR | Entscheidung | Status |
-|-----|-------------|--------|
-| ADR-001 | Java 21 und Spring Boot als Backend | Accepted |
-| ADR-002 | PostgreSQL mit Spring Data JPA | Accepted |
-| ADR-003 | JWT für stateless Authentifizierung | Accepted |
-| ADR-004 | React und TypeScript für das Frontend | Accepted |
-| ADR-005 | Docker Compose für Containerisierung | Accepted |
-
----
-
-## 9.2 Beziehung zu anderen Architekturkapiteln
-
-Die Architekturentscheidungen stehen in direktem Zusammenhang mit den übrigen Architekturbausteinen.
-
-| Entscheidung | Relevante Kapitel |
-|-------------|-------------------|
-| Java 21 / Spring Boot | Kapitel 5, Kapitel 6 |
-| PostgreSQL / JPA | Kapitel 5, Kapitel 6 |
-| JWT / Spring Security | Kapitel 5, Kapitel 6, Kapitel 8 |
-| React / TypeScript | Kapitel 5, Kapitel 6, Kapitel 7 |
-| Docker Compose | Kapitel 7, Kapitel 8 |
-
-Die Entscheidungen werden außerdem durch die Anforderungen und Randbedingungen der Spezifikation begründet.
-
----
-
-## 9.3 Umgang mit zukünftigen Architekturentscheidungen
-
-Weitere wesentliche Architekturentscheidungen werden ebenfalls als ADR dokumentiert.
-
-Eine neue Entscheidung sollte mindestens folgende Informationen enthalten:
-
-1. Kontext und Problemstellung
-2. getroffene Entscheidung
-3. Konsequenzen
-4. Status der Entscheidung
-
-Dadurch bleiben wichtige Änderungen der Architektur auch während der Weiterentwicklung des Study Planers nachvollziehbar.
