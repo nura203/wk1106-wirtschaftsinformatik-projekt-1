@@ -1,4 +1,4 @@
-# Spezifikation — Study Planer
+# Spezifikation — Study Planner
 
 Die vollständige Leseanleitung, den Bausteinindex und die Erklärung nicht anwendbarer Bausteine findet sich in [E1-leseanleitung.md](E1-leseanleitung.md).
 
@@ -16,10 +16,10 @@ Die vollständige Leseanleitung, den Bausteinindex und die Erklärung nicht anwe
 | D1 — Datenmodell | [D1-datenmodell.md](D1-datenmodell.md) |
 | D2 — Datentypenverzeichnis | [D2-datentypenverzeichnis.md](D2-datentypenverzeichnis.md) |
 | B1 — Dialogspezifikation | [B1-dialogspezifikation.md](B1-dialogspezifikation.md) |
-| B2 — Batch | ⛔ nicht anwendbar → E1 |
-| B3 — Druckausgaben | ⛔ nicht anwendbar → E1 |
+| B2 — Batch | ⛔ nicht anwendbar → siehe E1 |
+| B3 — Druckausgaben | ⛔ nicht anwendbar → siehe E1 |
 | S1 — Nachbarsysteme | [S1-nachbarsysteme.md](S1-nachbarsysteme.md) |
-| S2 — Datenmigration | ⛔ nicht anwendbar → E1 |
+| S2 — Datenmigration | ⛔ nicht anwendbar → siehe E1 |
 | S3 — Inbetriebnahme | [S3-inbetriebnahme.md](S3-inbetriebnahme.md) |
 | N1 — Nichtfunktionale Anforderungen | [N1-nichtfunktionale-anforderungen.md](N1-nichtfunktionale-anforderungen.md) |
 | N2 — Querschnittskonzepte | [N2-querschnittskonzepte.md](N2-querschnittskonzepte.md) |
@@ -30,8 +30,13 @@ Die vollständige Leseanleitung, den Bausteinindex und die Erklärung nicht anwe
 
 ## Eingesetzte KI-Werkzeuge
 
+Im Rahmen der Erstellung und Überarbeitung der Projektdokumentation wurden KI-Werkzeuge unterstützend eingesetzt.
+
 | Werkzeug | Einsatzzweck |
 |----------|-------------|
 | Claude (Anthropic) | Erstellung der initialen Dokumentstruktur und Textentwürfe |
+| ChatGPT (OpenAI) | Unterstützung bei Überarbeitung, Prüfung und Abgleich der Projektdokumentation mit Anforderungen und Implementierungsstand |
 
-Alle generierten Inhalte wurden vom Projektteam geprüft, inhaltlich diskutiert und an die tatsächlichen Projektziele angepasst.
+Die generierten Inhalte wurden vom Projektteam geprüft, fachlich diskutiert und an die tatsächlichen Projektziele, Anforderungen und den Implementierungsstand angepasst.
+
+Die KI-Ausgaben wurden nicht ungeprüft übernommen. Insbesondere Anforderungen, Architekturentscheidungen, fachliche Begriffe und technische Beschreibungen wurden mit dem Projektstand abgeglichen und bei Bedarf überarbeitet.

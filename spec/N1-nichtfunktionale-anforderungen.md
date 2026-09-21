@@ -1,65 +1,141 @@
 # N1 — Nichtfunktionale Anforderungen
 
-Nichtfunktionale Anforderungen nach ISO 25010. Jede Anforderung trägt eine stabile ID (NFR-xx-yy), die aus der Architektur und dem Code referenziert werden kann.
+Nichtfunktionale Anforderungen des Study Planners. Jede Anforderung trägt eine stabile ID (NFR-xx-yy), die aus der Architektur und dem Code referenziert werden kann.
 
 ---
 
 ## N1.1 Performance und Effizienz
 
 | ID | Anforderung | Messkriterium |
-|----|-------------|--------------|
-| NFR-11-01 | Dashboard lädt in unter 2 Sekunden. | Browser-Netzwerkpanel; gemessen ab erstem Byte bis vollständigem Render; LAN-Verbindung. |
-| NFR-11-02 | REST-API antwortet auf Standard-Requests in < 500 ms. | `curl`-Messung; 95. Perzentil; ohne externe API-Calls. |
-| NFR-11-03 | Lernplan-Berechnung (AF-01) dauert serverseitig < 1 Sekunde für bis zu 50 Aufgaben je Nutzer. | Unit-Test mit Zeitmessung. |
+|----|-------------|---------------|
+| NFR-11-01 | Das Dashboard soll unter den definierten Testbedingungen in weniger als 2 Sekunden geladen und dargestellt werden. | Messung über die Browser-Entwicklertools beziehungsweise das Netzwerk- und Performance-Panel. |
+| NFR-11-02 | Die REST-API soll bei Standard-Requests unter den definierten Testbedingungen eine Antwortzeit von weniger als 500 ms erreichen. | Messung definierter API-Aufrufe, beispielsweise über `curl` oder ein vergleichbares Testwerkzeug. Externe Dienste werden bei der Messung nicht berücksichtigt. |
+| NFR-11-03 | Die Lernplan-Berechnung für bis zu 50 Aufgaben eines Benutzers soll unter den definierten Testbedingungen weniger als 1 Sekunde benötigen. | Messung beziehungsweise automatisierter Test mit einer definierten Anzahl von Testaufgaben. |
 
 ---
 
 ## N1.2 Sicherheit
 
 | ID | Anforderung | Maßnahme |
-|----|-------------|---------|
-| NFR-12-01 | Passwörter dürfen niemals im Klartext gespeichert werden. | bcrypt mit Kostenfaktor 12 (AF-04). |
-| NFR-12-02 | Alle API-Endpunkte außer `/auth/*` erfordern einen gültigen JWT. | Spring Security `JwtAuthenticationFilter` (AF-06). |
-| NFR-12-03 | Nutzer darf ausschließlich eigene Ressourcen lesen und verändern. | Ownership-Prüfung in der Service-Schicht (AF-07); HTTP 403 bei Verletzung. |
-| NFR-12-04 | API-Keys, Passwörter und Secrets dürfen nicht ins Repository. | `.env` in `.gitignore`; `.env.example` enthält nur Platzhalter (CON-06). |
-| NFR-12-05 | Fehlermeldung bei Login unterscheidet nicht zwischen falscher E-Mail und falschem Passwort. | Generische Fehlermeldung in UC-02 (kein Information-Leakage). |
+|----|-------------|----------|
+| NFR-12-01 | Passwörter dürfen niemals im Klartext gespeichert werden. | Speicherung ausschließlich als BCrypt-Hash mit dem im System konfigurierten Kostenfaktor. |
+| NFR-12-02 | Geschützte API-Endpunkte müssen einen gültigen JWT voraussetzen. | Spring Security und `JwtAuthenticationFilter`; Registrierungs- und Login-Endpunkte sind öffentlich erreichbar. |
+| NFR-12-03 | Ein Benutzer darf ausschließlich auf seine eigenen geschützten Ressourcen zugreifen. | Ownership-Prüfung in der Service-Schicht; bei unberechtigtem Zugriff wird der Zugriff verweigert. |
+| NFR-12-04 | API-Keys, Passwörter und sonstige Secrets dürfen nicht in das Repository gelangen. | `.env` wird über `.gitignore` ausgeschlossen; `.env.example` enthält keine echten Secrets; sensible Konfiguration wird über Umgebungsvariablen bereitgestellt. |
+| NFR-12-05 | Fehlgeschlagene Login-Vorgänge sollen keine unnötigen Informationen über vorhandene Benutzerkonten preisgeben. | Generische Fehlermeldung bei fehlgeschlagener Anmeldung. |
 
 ---
 
 ## N1.3 Zuverlässigkeit
 
 | ID | Anforderung | Maßnahme |
-|----|-------------|---------|
-| NFR-13-01 | Anwendung überlebt Neustart der Datenbank ohne Datenverlust. | PostgreSQL-Daten in Docker Volume; Spring DataSource-Reconnect. |
-| NFR-13-02 | Fehlgeschlagene API-Requests führen niemals zu leeren Bildschirmen. Validierungs- und Client-Fehler (4xx) zeigen dem Nutzer eine verständliche Meldung. Server-Fehler (5xx) zeigen eine generische Meldung ohne interne Details — aus Sicherheitsgründen bewusst nicht differenziert. | Globaler `@ControllerAdvice`-Handler im Backend (N2 Fehlerbehandlung); Frontend Axios-Interceptor. |
-| NFR-13-03 | Fehler in AF-10 (Scheduler) blockieren nicht den Normalbetrieb. | Exceptions im Scheduler werden geloggt und verschluckt; kein Absturz. |
+|----|-------------|----------|
+| NFR-13-01 | Ein Neustart des PostgreSQL-Containers soll nicht zum Verlust der persistent gespeicherten Daten führen. | PostgreSQL verwendet ein persistentes Docker Volume. |
+| NFR-13-02 | Fehlgeschlagene API-Requests sollen zu verständlichen Fehlermeldungen führen und nicht zu unverständlichen oder leeren Zuständen. | Zentraler `@RestControllerAdvice`-Handler im Backend sowie Fehlerbehandlung im Frontend. |
 
 ---
 
 ## N1.4 Wartbarkeit
 
 | ID | Anforderung | Maßnahme |
-|----|-------------|---------|
-| NFR-14-01 | Codebase folgt einheitlicher Formatierung. | Checkstyle (Backend); ESLint + Prettier (Frontend). |
-| NFR-14-02 | Service-Schicht im Backend ist durch Unit-Tests abgedeckt. | JUnit 5 + Mockito; Ziel: ≥ 60 % Line Coverage der Service-Klassen. |
-| NFR-14-03 | Wesentliche Architekturentscheidungen sind als ADRs dokumentiert. | Mindestens 3–5 ADRs in `docs/arch/` (Programmiersprache, Persistenz, Auth, Frontend, Deployment). |
-| NFR-14-04 | Typen aus D2 sind im Code identisch benannt. | Klassen/Interfaces im Backend und TypeScript-Interfaces im Frontend tragen dieselben Namen wie in D2. |
+|----|-------------|----------|
+| NFR-14-01 | Die Codebasis soll einheitlich formatiert und automatisiert überprüfbar sein. | Verwendung der im Projekt eingerichteten Formatierungs- und Prüfwerkzeuge für Backend und Frontend. |
+| NFR-14-02 | Die wesentliche Service-Schicht des Backends soll durch automatisierte Tests abgedeckt werden. | JUnit 5 und Mockito; die vorhandenen automatisierten Tests prüfen insbesondere die fachliche Logik der Service-Schicht. |
+| NFR-14-03 | Wesentliche Architekturentscheidungen sollen als ADRs dokumentiert werden. | ADRs in `arch/09-architekturentscheidungen.md`. |
+| NFR-14-04 | Die in D2 definierten fachlichen Typen sollen in Backend und Frontend konsistent verwendet werden. | Einheitliche Benennung und fachliche Bedeutung der definierten Typen und DTOs. |
 
 ---
 
 ## N1.5 Benutzbarkeit
 
 | ID | Anforderung | Maßnahme |
-|----|-------------|---------|
-| NFR-15-01 | Anwendung ist auf Desktop (≥ 1024 px) und Mobilgerät (≥ 375 px) nutzbar. | Responsive Design; CSS Flexbox/Grid; manuelle Tests auf beiden Viewports. |
-| NFR-15-02 | Fehleingaben werden direkt am Formularfeld gemeldet — kein generischer Fehler nach dem Absenden. | Client-seitige Validierung vor dem API-Call (UC-04, UC-05); Inline-Fehlermeldungen. |
-| NFR-15-03 | Farbgebung erfüllt WCAG AA (Kontrastverhältnis ≥ 4,5:1). | Farbpalette mit Kontrast-Check; insbesondere Ampelfarben (Rot, Gelb, Grün) auf weißem Hintergrund. |
+|----|-------------|----------|
+| NFR-15-01 | Die Anwendung soll auf Desktop-Geräten ab 1024 px und mobilen Geräten ab 375 px nutzbar sein. | Responsive Design mit CSS; manuelle Prüfung auf unterschiedlichen Bildschirmgrößen. |
+| NFR-15-02 | Fehleingaben sollen möglichst direkt am jeweiligen Formularfeld angezeigt werden. | Client-seitige Validierung und Inline-Fehlermeldungen insbesondere bei der Aufgabenverwaltung. |
+| NFR-15-03 | Die Farbgebung soll die Anforderungen an WCAG AA hinsichtlich des Kontrasts unterstützen. | Kontrastprüfung der verwendeten Farbpalette; insbesondere Prüfung der Dringlichkeitsdarstellung. |
 
 ---
 
 ## N1.6 Portierbarkeit und Betrieb
 
 | ID | Anforderung | Maßnahme |
-|----|-------------|---------|
-| NFR-16-01 | Anwendung startet mit `docker compose up --build` auf Linux, macOS und Windows ohne zusätzliche Schritte. | Docker Compose; alle Services containerisiert; getestet auf allen drei Plattformen. |
-| NFR-16-02 | Kein manueller Konfigurationsschritt außer `cp .env.example .env`. | Sinnvolle Defaults in `.env.example`; Datenbankschema per Flyway automatisch angelegt. |
+|----|-------------|----------|
+| NFR-16-01 | Die Anwendung soll mit Docker Compose reproduzierbar gestartet werden können. | Docker Compose; Frontend, Backend und PostgreSQL werden als Container bereitgestellt. |
+| NFR-16-02 | Für den Betrieb sollen Java, Node.js und PostgreSQL nicht direkt auf dem Host installiert werden müssen. | Die benötigten Komponenten werden durch die Docker-Container bereitgestellt. |
+| NFR-16-03 | Der Start der Anwendung soll mit einem dokumentierten Vorgehen möglich sein. | Die Installations- und Startanleitung befindet sich in `INSTALL.md`. |
+
+Der vorgesehene Start erfolgt aus dem Verzeichnis `backend`:
+# N1 — Nichtfunktionale Anforderungen
+
+Nichtfunktionale Anforderungen des Study Planners. Jede Anforderung trägt eine stabile ID (NFR-xx-yy), die aus der Architektur und dem Code referenziert werden kann.
+
+---
+
+## N1.1 Performance und Effizienz
+
+| ID | Anforderung | Messkriterium |
+|----|-------------|---------------|
+| NFR-11-01 | Das Dashboard soll unter den definierten Testbedingungen in weniger als 2 Sekunden geladen und dargestellt werden. | Messung über die Browser-Entwicklertools beziehungsweise das Netzwerk- und Performance-Panel. |
+| NFR-11-02 | Die REST-API soll bei Standard-Requests unter den definierten Testbedingungen eine Antwortzeit von weniger als 500 ms erreichen. | Messung definierter API-Aufrufe, beispielsweise über `curl` oder ein vergleichbares Testwerkzeug. Externe Dienste werden bei der Messung nicht berücksichtigt. |
+| NFR-11-03 | Die Lernplan-Berechnung für bis zu 50 Aufgaben eines Benutzers soll unter den definierten Testbedingungen weniger als 1 Sekunde benötigen. | Messung beziehungsweise automatisierter Test mit einer definierten Anzahl von Testaufgaben. |
+
+---
+
+## N1.2 Sicherheit
+
+| ID | Anforderung | Maßnahme |
+|----|-------------|----------|
+| NFR-12-01 | Passwörter dürfen niemals im Klartext gespeichert werden. | Speicherung ausschließlich als BCrypt-Hash mit dem im System konfigurierten Kostenfaktor. |
+| NFR-12-02 | Geschützte API-Endpunkte müssen einen gültigen JWT voraussetzen. | Spring Security und `JwtAuthenticationFilter`; Registrierungs- und Login-Endpunkte sind öffentlich erreichbar. |
+| NFR-12-03 | Ein Benutzer darf ausschließlich auf seine eigenen geschützten Ressourcen zugreifen. | Ownership-Prüfung in der Service-Schicht; bei unberechtigtem Zugriff wird der Zugriff verweigert. |
+| NFR-12-04 | API-Keys, Passwörter und sonstige Secrets dürfen nicht in das Repository gelangen. | `.env` wird über `.gitignore` ausgeschlossen; `.env.example` enthält keine echten Secrets; sensible Konfiguration wird über Umgebungsvariablen bereitgestellt. |
+| NFR-12-05 | Fehlgeschlagene Login-Vorgänge sollen keine unnötigen Informationen über vorhandene Benutzerkonten preisgeben. | Generische Fehlermeldung bei fehlgeschlagener Anmeldung. |
+
+---
+
+## N1.3 Zuverlässigkeit
+
+| ID | Anforderung | Maßnahme |
+|----|-------------|----------|
+| NFR-13-01 | Ein Neustart des PostgreSQL-Containers soll nicht zum Verlust der persistent gespeicherten Daten führen. | PostgreSQL verwendet ein persistentes Docker Volume. |
+| NFR-13-02 | Fehlgeschlagene API-Requests sollen zu verständlichen Fehlermeldungen führen und nicht zu unverständlichen oder leeren Zuständen. | Zentraler `@RestControllerAdvice`-Handler im Backend sowie Fehlerbehandlung im Frontend. |
+
+---
+
+## N1.4 Wartbarkeit
+
+| ID | Anforderung | Maßnahme |
+|----|-------------|----------|
+| NFR-14-01 | Die Codebasis soll einheitlich formatiert und automatisiert überprüfbar sein. | Verwendung der im Projekt eingerichteten Formatierungs- und Prüfwerkzeuge für Backend und Frontend. |
+| NFR-14-02 | Die wesentliche Service-Schicht des Backends soll durch automatisierte Tests abgedeckt werden. | JUnit 5 und Mockito; die vorhandenen automatisierten Tests prüfen insbesondere die fachliche Logik der Service-Schicht. |
+| NFR-14-03 | Wesentliche Architekturentscheidungen sollen als ADRs dokumentiert werden. | ADRs in `arch/09-architekturentscheidungen.md`. |
+| NFR-14-04 | Die in D2 definierten fachlichen Typen sollen in Backend und Frontend konsistent verwendet werden. | Einheitliche Benennung und fachliche Bedeutung der definierten Typen und DTOs. |
+
+---
+
+## N1.5 Benutzbarkeit
+
+| ID | Anforderung | Maßnahme |
+|----|-------------|----------|
+| NFR-15-01 | Die Anwendung soll auf Desktop-Geräten ab 1024 px und mobilen Geräten ab 375 px nutzbar sein. | Responsive Design mit CSS; manuelle Prüfung auf unterschiedlichen Bildschirmgrößen. |
+| NFR-15-02 | Fehleingaben sollen möglichst direkt am jeweiligen Formularfeld angezeigt werden. | Client-seitige Validierung und Inline-Fehlermeldungen insbesondere bei der Aufgabenverwaltung. |
+| NFR-15-03 | Die Farbgebung soll die Anforderungen an WCAG AA hinsichtlich des Kontrasts unterstützen. | Kontrastprüfung der verwendeten Farbpalette; insbesondere Prüfung der Dringlichkeitsdarstellung. |
+
+---
+
+## N1.6 Portierbarkeit und Betrieb
+
+| ID | Anforderung | Maßnahme |
+|----|-------------|----------|
+| NFR-16-01 | Die Anwendung soll mit Docker Compose reproduzierbar gestartet werden können. | Docker Compose; Frontend, Backend und PostgreSQL werden als Container bereitgestellt. |
+| NFR-16-02 | Für den Betrieb sollen Java, Node.js und PostgreSQL nicht direkt auf dem Host installiert werden müssen. | Die benötigten Komponenten werden durch die Docker-Container bereitgestellt. |
+| NFR-16-03 | Der Start der Anwendung soll mit einem dokumentierten Vorgehen möglich sein. | Die Installations- und Startanleitung befindet sich in `INSTALL.md`. |
+
+Der vorgesehene Start erfolgt aus dem Projektstamm:
+
+```bash
+docker compose up --build
+```
+```bash
+cd backend
+docker compose up --build

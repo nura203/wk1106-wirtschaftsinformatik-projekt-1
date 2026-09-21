@@ -4,8 +4,10 @@
 
 **Nicht anwendbar.**
 
-Der Study Planer erzeugt keine Druckausgaben, PDF-Berichte oder ähnliche Artefakte für den Druck.
+Der Study Planner erzeugt keine Druckausgaben, PDF-Berichte oder vergleichbare Artefakte für den Druck.
 
-Der einzige Export ist eine `.ics`-Datei (UC-11, AF-12), die als maschinenlesbare Schnittstelle zu externen Kalenderanwendungen dient und in S1.5 beschrieben wird. Ein druckoptimierter Lernplan wurde als Nicht-Ziel eingestuft (P1, NG-06), da Studierende ihre Pläne primär mobil und am Desktop nutzen.
+Der einzige vorgesehene Export ist eine `.ics`-Datei (UC-11, AF-12). Diese dient dem Austausch von Kalenderdaten mit externen Kalenderanwendungen und wird in der Spezifikation zum Kalenderexport beschrieben.
 
-Sollte in einer späteren Version eine PDF-Exportfunktion eingeführt werden, ist dieser Baustein zu überarbeiten.
+Ein druckoptimierter Lernplan ist kein Bestandteil des aktuellen Projektumfangs. Die Anwendung ist für die Nutzung am Desktop und auf mobilen Geräten vorgesehen.
+
+Sollte in einer späteren Version eine PDF- oder Druckexportfunktion eingeführt werden, ist dieser Baustein entsprechend zu überarbeiten.

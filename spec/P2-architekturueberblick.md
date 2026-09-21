@@ -1,34 +1,40 @@
 # P2 — Architekturüberblick
 
-P2 beschreibt was der Study Planer ist und welche externen Systeme damit zusammenarbeiten. Die detaillierte technische Architekturbeschreibung findet sich in `docs/arch/`.
+P2 beschreibt, was der Study Planner ist und welche externen Systeme damit zusammenarbeiten. Die detaillierte technische Architekturbeschreibung findet sich in `arch/`.
 
 ---
 
 ## P2.1 Systemkontext
 
-Der Study Planer ist eine webbasierte Anwendung für Studierende. Der Nutzer erfasst Prüfungen, Abgaben und Lernziele — das System berechnet daraus automatisch einen priorisierten Lernplan.
-
+Der Study Planner ist eine webbasierte Anwendung für Studierende. Der Nutzer erfasst Prüfungen, Abgaben und Lernziele — das System berechnet daraus einen strukturierten Lernplan.
 
 ```mermaid
 graph TD
     Nutzer["👤 Studierender"]
-    Browser["Browser\nReact SPA"]
-    Backend["Study-Planer Backend\nSpring Boot"]
-    DB[("PostgreSQL\nintern")]
-    SMTP["E-Mail-Provider\nSMTP optional"]
-    GoogleCal["Google Calendar\niCal-Import"]
+    Browser["Browser<br/>React SPA"]
+    Backend["Study Planner Backend<br/>Spring Boot"]
+    DB[("PostgreSQL<br/>intern")]
+    SMTP["E-Mail-Provider<br/>SMTP optional"]
+    Calendar["Kalenderanwendung<br/>manueller iCal-Import"]
 
     Nutzer -- "bedient" --> Browser
-    Browser -- "REST/JSON · HTTPS" --> Backend
+    Browser -- "REST/JSON" --> Backend
     Backend -- "JDBC/JPA" --> DB
-    Backend -- "SMTP · TLS" --> SMTP
+    Backend -- "SMTP" --> SMTP
     SMTP -- "E-Mail" --> Nutzer
-    Browser -- ".ics Download" --> GoogleCal
+    Backend -- ".ics-Datei" --> Browser
+    Browser -- "Download und manueller Import" --> Calendar
 ```
 
 ---
 
-
 ## P2.2 Externe Schnittstellen (Überblick)
 
-Die externen Schnittstellen des Study Planers sind der E-Mail-Provider für Erinnerungen und die Kalender-App für den .ics-Export. Details dazu in S1.
+Die externen Schnittstellen des Study Planners sind:
+
+- ein optionaler E-Mail-Provider über SMTP für Erinnerungen,
+- eine Kalenderanwendung für den manuellen Import der exportierten `.ics`-Datei.
+
+Eine direkte Synchronisation mit einem externen Kalenderdienst ist nicht Bestandteil des Systems.
+
+Details zu den REST-Schnittstellen finden sich in `S1 — REST-API`.

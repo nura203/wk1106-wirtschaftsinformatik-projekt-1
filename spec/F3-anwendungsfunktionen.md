@@ -1,6 +1,8 @@
 # F3 — Anwendungsfunktionen
 
-F3 listet alle Systemfunktionen — also die systeminternen Verarbeitungsschritte, die keine eigenen Use Cases in F2 sind, sowie die vollständige Funktionsinventur. Jede Funktion ist einer Funktionsgruppe zugeordnet und trägt eine stabile ID, die im Code referenziert wird.
+F3 listet die wesentlichen Systemfunktionen auf, die innerhalb der Anwendung ausgeführt werden und keine eigenen Use Cases in F2 darstellen.
+
+Jede Funktion ist einer Funktionsgruppe zugeordnet und besitzt eine stabile ID. Die IDs werden in der Spezifikation zur eindeutigen Referenzierung verwendet.
 
 ---
 
@@ -8,117 +10,190 @@ F3 listet alle Systemfunktionen — also die systeminternen Verarbeitungsschritt
 
 | ID | Funktion | Gruppe | Prio | UC-Bezug |
 |----|----------|--------|------|----------|
-| AF-01 | Lernplan berechnen | Planung | Muss | UC-04, UC-05, UC-06, UC-09 |
-| AF-02 | Dringlichkeit berechnen (UrgencyLevel) | Planung | Muss | UC-07 |
-| AF-03 | TaskStatus aus Fortschritt ableiten | Tracking | Muss | UC-09 |
+| AF-01 | Lernplan berechnen | Planung | Muss | UC-08 |
+| AF-02 | Dringlichkeit berechnen (`UrgencyLevel`) | Planung | Muss | UC-07, UC-08 |
+| AF-03 | `TaskStatus` aus Fortschritt ableiten | Tracking | Muss | UC-09 |
 | AF-07 | Ownership prüfen | Auth | Muss | UC-05, UC-06, UC-09 |
-| AF-10 | Reminder-Regeln auswerten (Scheduler) | Erinnerung | Soll | — |
-| AF-11 | E-Mail-Benachrichtigung versenden | Erinnerung | Kann | — |
 | AF-12 | iCal-Datei generieren | Export | Kann | UC-11 |
 
 **Prioritätslegende:**
-- Muss — ohne diese Funktion ist die Anwendung nicht abgabefähig
-- Soll — im Normalfall implementiert
-- Kann — nach Kapazität
 
-> Die IDs AF-04, AF-05, AF-06, AF-08 und AF-09 wurden gestrichen. Die verbleibenden IDs bleiben stabil und werden nicht umbenannt.
+- **Muss** — ohne diese Funktion ist die Anwendung nicht abgabefähig
+- **Soll** — im Normalfall implementiert
+- **Kann** — nach Kapazität
+
+Die IDs AF-04, AF-05, AF-06, AF-08, AF-09, AF-10 und AF-11 werden im aktuellen Funktionsindex nicht verwendet. Die verbleibenden IDs bleiben stabil und werden nicht umbenannt.
+
 ---
 
 ## F3.2 Funktionsbeschreibungen
 
 ### AF-01 — Lernplan berechnen
 
-**Zweck:** Erzeugt aus allen offenen Aufgaben eines Nutzers eine priorisierte Wochenübersicht mit empfohlenen täglichen Lernzeiten.
+**Zweck:**
 
-**Auslöser:** Aufgabe angelegt, bearbeitet, gelöscht oder Fortschritt aktualisiert; manueller Neuberechnungsaufruf (`POST /api/v1/plan/recalculate`).
+Erzeugt aus den offenen Aufgaben eines Benutzers eine strukturierte Übersicht über empfohlene Lernaktivitäten.
 
-**Algorithmus:**
+**Auslöser:**
 
-```
-für jede offene Aufgabe des Nutzers:
-    verbleibende_tage  = deadline − heute  (mind. 1)
-    offener_aufwand    = estimatedHours × (1 − progressPercent / 100)
-    tagesaufwand       = offener_aufwand / verbleibende_tage
-    priorität          = tagesaufwand × weight
+Die Berechnung wird über die Lernplanfunktion beziehungsweise den entsprechenden API-Aufruf angefordert.
 
-Aufgaben sortiert nach priorität (absteigend)
-Ausgabe: LearningPlanDTO mit WeekEntryDTO je Tag (Mo–So)
-```
+**Verarbeitung:**
 
-**Einschränkungen:** Aufgaben im Status DONE werden ignoriert. Aufgaben ohne `estimatedHours` erhalten `estimatedHours = 1` als Fallback. Aufgaben, deren Deadline heute oder in der Vergangenheit liegt, erhalten `verbleibende_tage = 1` (werden ganz oben priorisiert).
+Die Berechnung berücksichtigt insbesondere:
 
-**Querverweise:** D2 `LearningPlanDTO`; UC-08; NFR-11-03.
+- offene Aufgaben,
+- Deadline,
+- geschätzten Aufwand,
+- aktuellen Fortschritt,
+- Gewichtung einer Aufgabe,
+- verbleibende Tage bis zur Deadline.
+
+Für eine Aufgabe wird aus dem verbleibenden Aufwand und der Anzahl der verbleibenden Tage eine empfohlene tägliche Lernzeit berechnet.
+
+Aufgaben werden nur für Tage geplant, an denen sie noch relevant sind. Bereits erledigte oder überfällige Aufgaben werden nicht als zukünftige Lernaktivitäten eingeplant.
+
+Das Ergebnis wird als `LearningPlanDTO` an das Frontend übertragen.
+
+**Einschränkungen:**
+
+Abgeschlossene Aufgaben werden bei der Planung nicht als offene Lernaufgaben berücksichtigt.
+
+**Querverweise:**
+
+- D1 — Datenmodell
+- D2 — `LearningPlanDTO`
+- UC-08
+- NFR-11-03
 
 ---
 
-### AF-02 — Dringlichkeit berechnen (UrgencyLevel)
+### AF-02 — Dringlichkeit berechnen (`UrgencyLevel`)
 
-**Zweck:** Ordnet jeder offenen Aufgabe eine Ampelfarbe zu.
+**Zweck:**
 
-| Bedingung | UrgencyLevel |
-|-----------|-------------|
-| `deadline − heute ≤ 3` | `RED` |
-| `3 < deadline − heute ≤ 7` | `YELLOW` |
-| `deadline − heute > 7` | `GREEN` |
+Ordnet einer Aufgabe anhand ihrer Deadline eine Dringlichkeitsstufe zu.
 
-**Hinweis:** UrgencyLevel ist ein berechnetes, nicht persistiertes Attribut. Es wird bei jedem Read serverseitig bestimmt und im `TaskDTO` mitgeliefert.
+| Bedingung | `UrgencyLevel` |
+|-----------|----------------|
+| `deadline − heute ≤ 3 Tage` | `RED` |
+| `3 < deadline − heute ≤ 7 Tage` | `YELLOW` |
+| `deadline − heute > 7 Tage` | `GREEN` |
 
-**Querverweise:** D2 `UrgencyLevel`; UC-07; B1 Ampeldarstellung.
+**Hinweis:**
+
+`UrgencyLevel` ist ein berechneter, nicht dauerhaft persistierter Wert. Er wird serverseitig bestimmt und bei der Ausgabe einer Task bereitgestellt.
+
+**Querverweise:**
+
+- D2 — `UrgencyLevel`
+- UC-07
+- UC-08
+- B1 — Dashboard und Aufgabendetail
 
 ---
 
-### AF-03 — TaskStatus aus Fortschritt ableiten
+### AF-03 — `TaskStatus` aus Fortschritt ableiten
 
-**Zweck:** TaskStatus wird automatisch aus `progressPercent` abgeleitet; der Nutzer setzt ihn nicht direkt.
+**Zweck:**
 
-| progressPercent | TaskStatus |
-|----------------|-----------|
-| 0 | `OPEN` |
-| 1–99 | `IN_PROGRESS` |
-| 100 | `DONE` |
+Der Bearbeitungsstatus einer Task wird anhand des gespeicherten Fortschritts bestimmt.
 
-**Hinweis:** Statusübergänge sind unidirektional (OPEN → IN_PROGRESS → DONE). Ein Zurücksetzen auf OPEN durch Verringern des Fortschritts unter 1 % ist technisch möglich, aber nicht als eigenständiger UC modelliert.
+| `progressPercent` | `TaskStatus` |
+|-------------------|--------------|
+| `0` | `OPEN` |
+| `1–99` | `IN_PROGRESS` |
+| `100` | `DONE` |
 
-**Querverweise:** D2 `TaskStatus`; UC-09.
+Der Status wird nicht als eigenständige Benutzereingabe behandelt.
+
+**Hinweis:**
+
+Wird der Fortschritt verändert, kann sich dadurch der Bearbeitungsstatus der Aufgabe ändern.
+
+**Querverweise:**
+
+- D2 — `TaskStatus`
+- UC-09
 
 ---
 
 ### AF-07 — Ownership prüfen
 
-**Zweck:** Sicherstellen, dass ein Nutzer nur auf eigene Ressourcen zugreift.
+**Zweck:**
 
-**Implementierung:** Service-Schicht vergleicht `userId` aus JWT mit `task.userId`; bei Abweichung: HTTP 403.
+Stellt sicher, dass ein Benutzer nur auf seine eigenen geschützten Ressourcen zugreifen kann.
 
-**Querverweise:** NFR-12-03; UC-05, UC-06, UC-09.
+**Implementierung:**
 
----
+Die Benutzer-ID des authentifizierten Benutzers wird mit der Eigentümer-ID der angeforderten Task verglichen.
 
-### AF-10 — Reminder-Regeln auswerten (Scheduler)
+Bei einer Abweichung wird der Zugriff verweigert.
 
-**Zweck:** Täglich um 08:00 Uhr alle aktiven Reminder prüfen; fällige Benachrichtigungen auslösen.
+Die Prüfung erfolgt insbesondere bei:
 
-**Implementierung:** Spring `@Scheduled(cron = "0 0 8 * * *")`; prüft `reminder.daysBefore` gegen `task.deadline − heute`; löst AF-11 oder In-App-Benachrichtigung aus.
+- Lesen einzelner Tasks,
+- Ändern von Tasks,
+- Löschen von Tasks,
+- Zugriffen auf aufgabenbezogene Ressourcen.
 
-**Hinweis:** Kein Batch im Siedersleben-Sinne — B2 nicht anwendbar (→ E1).
+**Querverweise:**
 
-**Querverweise:** D1 Entität REMINDER; UC-10.
-
----
-
-### AF-11 — E-Mail-Benachrichtigung versenden
-
-**Zweck:** Erinnerungs-E-Mail an den Nutzer versenden, wenn SMTP konfiguriert ist.
-
-**Vorbedingung:** `SMTP_HOST` Umgebungsvariable gesetzt; `reminder.channel` = EMAIL oder BOTH.
-
-**Querverweise:** S1 SMTP; N2 Konfigurationsmanagement; NFR-12-04.
+- D1 — Ownership
+- NFR-12-03
+- UC-05
+- UC-06
+- UC-09
 
 ---
 
 ### AF-12 — iCal-Datei generieren
 
-**Zweck:** Alle offenen Aufgaben als RFC-5545-konforme `.ics`-Datei serialisieren.
+**Zweck:**
 
-**Inhalt je VEVENT:** `DTSTART` = `task.deadline`; `SUMMARY` = `task.title`; `DESCRIPTION` = `task.description`.
+Erzeugt aus Aufgaben eine `.ics`-Datei für den Export in eine externe Kalenderanwendung.
 
-**Querverweise:** UC-11; S1 Abschnitt 3.2.
+**Verarbeitung:**
+
+Die Aufgaben werden serverseitig in das iCalendar-Format serialisiert.
+
+Die erzeugte Datei kann anschließend vom Benutzer heruntergeladen und manuell in eine Kalenderanwendung importiert werden.
+
+**Inhalt:**
+
+Für die exportierten Termine werden die relevanten Aufgabeninformationen verwendet, insbesondere:
+
+- Deadline
+- Aufgabentitel
+- Aufgabenbeschreibung, sofern vorhanden
+
+**Hinweis:**
+
+Es findet keine direkte Synchronisation mit einem externen Kalenderdienst statt.
+
+**Querverweise:**
+
+- UC-11
+- D1 — `TASK`
+- B1 — Einstellungen / Kalenderexport
+
+---
+
+## F3.3 Funktionsübersicht
+
+Die aktuell dokumentierten Anwendungsfunktionen decken die wesentlichen fachlichen Querschnittsfunktionen der Anwendung ab:
+
+```text
+Aufgabe / Fortschritt
+        │
+        ├── AF-03 → TaskStatus
+        │
+        ├── AF-02 → UrgencyLevel
+        │
+        ├── AF-07 → Ownership
+        │
+        └── AF-01 → Lernplan
+
+Aufgaben
+   │
+   └── AF-12 → .ics-Export

@@ -1,8 +1,8 @@
 # F2 — Anwendungsfälle
 
-Use Cases im Sinne von Siedersleben (Kap. 4.4): konkrete Interaktionsszenarien zwischen einem Studierenden und dem System, die jeweils ein einzelnes, für den Nutzer bedeutsames Ziel verfolgen und in einem stabilen Zustand enden. F2 ist die **systemunterstützte Teilmenge** der in F1 beschriebenen Geschäftsprozesse: jede Aktivität in F1, die eine Nutzerinteraktion mit dem Study Planer beinhaltet, erscheint hier als Use Case.
+Use Cases im Sinne von Siedersleben (Kap. 4.4): konkrete Interaktionsszenarien zwischen einem Studierenden und dem System, die jeweils ein einzelnes, für den Nutzer bedeutsames Ziel verfolgen und in einem stabilen Zustand enden.
 
-Jeder Use Case folgt dem Spezifikationstemplate nach Pohl & Rupp (2021), *Basiswissen Requirements Engineering*, 5. Aufl. Die Nummerierung ist stabil; einmal referenzierte UC-IDs werden nicht umbenannt.
+F2 beschreibt die systemunterstützte Teilmenge der in F1 beschriebenen Geschäftsprozesse. Jeder Use Case folgt dem Spezifikationstemplate nach Pohl & Rupp (2021), *Basiswissen Requirements Engineering*, 5. Aufl.
 
 ---
 
@@ -12,17 +12,17 @@ Jeder Use Case folgt dem Spezifikationstemplate nach Pohl & Rupp (2021), *Basisw
 |----|----------|--------|-------------|--------|
 | [UC-01](#uc-01--registrieren) | Registrieren | Zugang | — (einmalige Einrichtung) | ✅ |
 | [UC-02](#uc-02--anmelden) | Anmelden | Zugang | GP-01 Vorbedingung | ✅ |
-| [UC-03](#uc-03--abmelden) | Abmelden | Zugang | — (Nachbedingung) | ✅ |
-| [UC-04](#uc-04--aufgabe-anlegen) | Aufgabe anlegen | Aufgabenverwaltung | GP-01 A2 | ✅ |
-| [UC-05](#uc-05--aufgabe-bearbeiten) | Aufgabe bearbeiten | Aufgabenverwaltung | GP-02 | ✅ |
+| [UC-03](#uc-03--abmelden) | Abmelden | Zugang | — | ✅ |
+| [UC-04](#uc-04--aufgabe-anlegen) | Aufgabe anlegen | Aufgabenverwaltung | GP-01 A2–A4 | ✅ |
+| [UC-05](#uc-05--aufgabe-bearbeiten) | Aufgabe bearbeiten | Aufgabenverwaltung | GP-02 A5 | ✅ |
 | [UC-06](#uc-06--aufgabe-löschen) | Aufgabe löschen | Aufgabenverwaltung | GP-02 | ✅ |
-| [UC-07](#uc-07--dashboard-anzeigen) | Dashboard anzeigen | Überblick | GP-02 A1 | ✅ |
-| [UC-08](#uc-08--lernplan-anzeigen) | Lernplan anzeigen | Planung | GP-02 A3 | ✅ |
-| [UC-09](#uc-09--lernfortschritt-eintragen) | Lernfortschritt eintragen | Tracking | GP-02 A4, GP-03 A4 | ✅ |
-| [UC-10](#uc-10--erinnerung-konfigurieren) | Erinnerung konfigurieren | Einstellungen | — | ✅ |
+| [UC-07](#uc-07--dashboard-anzeigen) | Dashboard anzeigen | Überblick | GP-02 A1–A2 | ✅ |
+| [UC-08](#uc-08--lernplan-anzeigen) | Lernplan anzeigen | Planung | GP-01 A5, GP-02 A3, GP-03 A2 | ✅ |
+| [UC-09](#uc-09--lernfortschritt-eintragen) | Lernfortschritt eintragen | Tracking | GP-02 A4/A6, GP-03 A4/A5 | ✅ |
+| [UC-10](#uc-10--erinnerung-konfigurieren) | Erinnerung konfigurieren | Einstellungen | GP-01 A6 | ✅ |
 | [UC-11](#uc-11--kalenderexport) | Kalenderexport | Export | — | ✅ |
 
-Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
+**Status-Legende:** ✅ fertig · 🚧 in Arbeit · ⬜ offen
 
 ---
 
@@ -34,16 +34,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-01 |
 | **Name** | Registrieren |
-| **Beschreibung** | Ein neuer Studierender legt ein Nutzerkonto an und erhält direkt im Anschluss eine aktive Sitzung. |
-| **Auslöser** | Nutzer öffnet die Anwendung ohne Konto und wählt „Registrieren". |
+| **Beschreibung** | Ein neuer Studierender legt ein Nutzerkonto an und wird anschließend authentifiziert. |
+| **Auslöser** | Nutzer öffnet die Anwendung ohne gültige Authentifizierung und wählt „Registrieren“. |
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Die E-Mail-Adresse ist noch nicht im System registriert. |
-| **Nachbedingung (Erfolg)** | Nutzerkonto angelegt; authentifizierte Sitzung aktiv; Nutzer auf Dashboard weitergeleitet. |
+| **Nachbedingung (Erfolg)** | Nutzerkonto angelegt; JWT ausgestellt; Nutzer auf Dashboard weitergeleitet. |
 | **Nachbedingung (Misserfolg)** | Kein Konto angelegt; Fehlermeldung angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet das Registrierungsformular.<br> 2. Nutzer gibt Benutzername, E-Mail-Adresse und Passwort ein. <br>3. System validiert Eingaben (E-Mail-Format; Passwort ≥ 8 Zeichen).<br> 4. System prüft, ob die E-Mail-Adresse bereits existiert. <br>5. System speichert das Konto (Passwort als bcrypt-Hash).<br> 6. System stellt einen JWT aus und leitet den Nutzer auf das Dashboard weiter. |
+| **Hauptszenario** | 1. Nutzer öffnet das Registrierungsformular.<br>2. Nutzer gibt Benutzername, E-Mail-Adresse und Passwort ein.<br>3. System validiert die Eingaben.<br>4. System prüft, ob die E-Mail-Adresse bereits existiert.<br>5. System speichert das Konto mit einem BCrypt-Hash des Passworts.<br>6. System stellt ein JWT aus und leitet den Nutzer auf das Dashboard weiter. |
 | **Alternative Szenarien** | — |
-| **Ausnahmeszenarien** | *E-Mail bereits vergeben:* System zeigt Fehlermeldung; kein Konto angelegt; Nutzer kann eine andere Adresse eingeben. *Validierungsfehler:* betroffene Felder werden markiert; kein Request abgesendet. |
-| **Qualitäten** | NFR-12-1 (Passwort-Hash); NFR-15-2 (Inline-Validierung). |
+| **Ausnahmeszenarien** | **E-Mail bereits vergeben:** System zeigt eine Fehlermeldung; kein Konto wird angelegt.<br><br>**Validierungsfehler:** Betroffene Felder werden markiert; die Eingabe wird nicht erfolgreich verarbeitet. |
+| **Qualitäten** | NFR-12-01 (Passwortschutz); NFR-15-02 (Formularvalidierung). |
 
 ---
 
@@ -53,16 +53,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-02 |
 | **Name** | Anmelden |
-| **Beschreibung** | Ein registrierter Studierender authentifiziert sich und erhält eine gültige Sitzung für alle weiteren Use Cases. |
-| **Auslöser** | Nutzer öffnet die Anwendung ohne aktive Sitzung. |
+| **Beschreibung** | Ein registrierter Studierender authentifiziert sich und erhält ein JWT für weitere geschützte Anfragen. |
+| **Auslöser** | Nutzer öffnet die Anwendung ohne gültige Authentifizierung. |
 | **Akteure** | Studierender (primär). |
 | **Vorbedingung** | Nutzerkonto existiert. |
-| **Nachbedingung (Erfolg)** | JWT im Client gespeichert; Nutzer auf Dashboard. |
-| **Nachbedingung (Misserfolg)** | Keine Sitzung; generische Fehlermeldung angezeigt. |
-| **Hauptszenario** | 1. System zeigt Login-Formular.<br> 2. Nutzer gibt E-Mail und Passwort ein.<br> 3. System prüft Credentials gegen Datenbank. <br>4. System stellt JWT aus (Gültigkeit: 24 h).<br> 5. Client speichert JWT. <br>6. Weiterleitung auf Dashboard. |
+| **Nachbedingung (Erfolg)** | Gültiges JWT wurde ausgestellt; Nutzer wird auf das Dashboard weitergeleitet. |
+| **Nachbedingung (Misserfolg)** | Kein gültiges JWT; generische Fehlermeldung wird angezeigt. |
+| **Hauptszenario** | 1. System zeigt das Login-Formular.<br>2. Nutzer gibt E-Mail und Passwort ein.<br>3. System prüft die Zugangsdaten gegen die gespeicherten Benutzerdaten.<br>4. System stellt bei erfolgreicher Prüfung ein JWT mit einer Gültigkeit von 24 Stunden aus.<br>5. Client speichert das JWT.<br>6. Nutzer wird auf das Dashboard weitergeleitet. |
 | **Alternative Szenarien** | — |
-| **Ausnahmeszenarien** | *Falsche Credentials:* generische Fehlermeldung ohne Hinweis, ob E-Mail oder Passwort falsch ist. *Konto existiert nicht:* gleiche generische Meldung (kein Information-Leakage). |
-| **Qualitäten** | NFR-12-02 (JWT-Validierung); NFR-12-05 (keine differenzierte Fehlermeldung bei falschen Credentials). |
+| **Ausnahmeszenarien** | **Falsche Zugangsdaten:** Generische Fehlermeldung ohne Unterscheidung zwischen unbekannter E-Mail-Adresse und falschem Passwort. |
+| **Qualitäten** | NFR-12-02 (geschützte API-Endpunkte); NFR-12-05 (keine unnötige Informationsweitergabe beim Login). |
 
 ---
 
@@ -72,12 +72,12 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-03 |
 | **Name** | Abmelden |
-| **Beschreibung** | Nutzer beendet die aktive Sitzung. |
-| **Auslöser** | Nutzer klickt „Abmelden". |
+| **Beschreibung** | Nutzer beendet die lokale Authentifizierung der Anwendung. |
+| **Auslöser** | Nutzer klickt „Abmelden“. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung aktiv. |
-| **Nachbedingung** | JWT im Client gelöscht; Nutzer auf Login-Seite weitergeleitet. |
-| **Hauptszenario** | 1. Nutzer klickt „Abmelden". <br>2. System löscht JWT im Client.<br> 3. Weiterleitung auf Login-Seite. |
+| **Vorbedingung** | Nutzer ist authentifiziert. |
+| **Nachbedingung** | JWT wird aus dem Client entfernt; Nutzer wird auf die Login-Seite weitergeleitet. |
+| **Hauptszenario** | 1. Nutzer klickt „Abmelden“.<br>2. Client entfernt das gespeicherte JWT.<br>3. Nutzer wird auf die Login-Seite weitergeleitet. |
 | **Alternative Szenarien** | — |
 | **Ausnahmeszenarien** | — |
 | **Qualitäten** | — |
@@ -92,16 +92,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-04 |
 | **Name** | Aufgabe anlegen |
-| **Beschreibung** | Studierender erfasst eine neue Aufgabe (Prüfung, Abgabe oder Lernziel); das System berechnet den Lernplan neu. |
-| **Auslöser** | Nutzer klickt „Neue Aufgabe" auf Dashboard oder Aufgabenliste. |
+| **Beschreibung** | Studierender erfasst eine neue Aufgabe vom Typ Prüfung, Abgabe oder Lernziel. |
+| **Auslöser** | Nutzer öffnet die Funktion zum Anlegen einer neuen Aufgabe. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung. |
-| **Nachbedingung (Erfolg)** | Aufgabe gespeichert; Lernplan neu berechnet; Aufgabe erscheint sofort im Dashboard. |
-| **Nachbedingung (Misserfolg)** | Keine Aufgabe angelegt; Validierungsfehler angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgaben-Anlegen-Formular.<br> 2. Nutzer wählt Aufgabentyp (EXAM / ASSIGNMENT / GOAL). <br>3. System zeigt typ-spezifische Felder (vgl. D2).<br> 4. Nutzer füllt Pflichtfelder aus (mindestens: Titel, Deadline). <br>5. Nutzer speichert.<br> 6. System validiert Eingaben gegen das Typ-Schema.<br> 7. System persistiert Aufgabe und berechnet Lernplan neu. <br>8. Nutzer wird auf Dashboard oder Aufgabenliste weitergeleitet. |
-| **Alternative Szenarien** | *Nutzer bricht ab:* nichts wird gespeichert. |
-| **Ausnahmeszenarien** | *Pflichtfeld leer:* betroffenes Feld wird markiert; kein Speichern möglich. *Datum in der Vergangenheit:* Warnung wird angezeigt, Speichern aber erlaubt (weiche Regel). |
-| **Qualitäten** | NFR-15-2 (Inline-Validierung); F-03-03 (Plan-Neuberechnung). |
+| **Vorbedingung** | Nutzer ist authentifiziert. |
+| **Nachbedingung (Erfolg)** | Aufgabe wurde gespeichert und dem authentifizierten Benutzer zugeordnet. |
+| **Nachbedingung (Misserfolg)** | Keine Aufgabe angelegt; Validierungs- oder Fehlermeldung angezeigt. |
+| **Hauptszenario** | 1. Nutzer öffnet das Formular zum Anlegen einer Aufgabe.<br>2. Nutzer wählt den Aufgabentyp (`EXAM`, `ASSIGNMENT` oder `GOAL`).<br>3. Nutzer gibt die erforderlichen Angaben ein.<br>4. Nutzer speichert die Aufgabe.<br>5. System validiert die Eingaben.<br>6. System speichert die Aufgabe mit der Benutzer-ID des authentifizierten Benutzers.<br>7. Nutzer wird zur Aufgabenübersicht beziehungsweise Detailansicht weitergeleitet. |
+| **Alternative Szenarien** | **Nutzer bricht ab:** Keine Daten werden gespeichert. |
+| **Ausnahmeszenarien** | **Ungültige Eingabe:** System weist die Eingabe zurück und zeigt eine entsprechende Fehlermeldung. |
+| **Qualitäten** | NFR-15-02 (Formularvalidierung). |
 
 ---
 
@@ -111,16 +111,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-05 |
 | **Name** | Aufgabe bearbeiten |
-| **Beschreibung** | Studierender ändert Felder einer bestehenden Aufgabe; das System berechnet den Lernplan neu. |
-| **Auslöser** | Nutzer öffnet eine Aufgabe und klickt „Bearbeiten". |
+| **Beschreibung** | Studierender ändert die Daten einer bestehenden eigenen Aufgabe. |
+| **Auslöser** | Nutzer öffnet eine Aufgabe und wählt die Bearbeitungsfunktion. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert und gehört dem Nutzer. |
-| **Nachbedingung (Erfolg)** | Geänderte Felder persistiert; Lernplan neu berechnet. |
-| **Nachbedingung (Misserfolg)** | Ursprüngliche Daten unverändert; Validierungsfehler angezeigt. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. <br>2. Nutzer klickt „Bearbeiten". <br>3. Formular wird mit bestehenden Werten befüllt.<br> 4. Nutzer ändert Felder.<br> 5. Nutzer speichert.<br> 6. System validiert und persistiert Änderungen. <br>7. System berechnet Lernplan neu. |
-| **Alternative Szenarien** | *Nutzer verlässt Formular ohne Speichern:* Änderungen werden verworfen. |
-| **Ausnahmeszenarien** | *Zugriff auf fremde Aufgabe:* HTTP 403; Nutzer wird auf eigene Aufgabenliste weitergeleitet. *Validierungsfehler:* betroffene Felder markiert; kein Speichern. |
-| **Qualitäten** | NFR-12-3 (Ownership-Prüfung); F-03-03 (Plan-Neuberechnung). |
+| **Vorbedingung** | Nutzer ist authentifiziert; Aufgabe existiert und gehört dem Nutzer. |
+| **Nachbedingung (Erfolg)** | Geänderte Aufgabendaten wurden persistiert. |
+| **Nachbedingung (Misserfolg)** | Ursprüngliche Daten bleiben unverändert; Fehlermeldung wird angezeigt. |
+| **Hauptszenario** | 1. Nutzer öffnet die Aufgabendetailansicht.<br>2. Nutzer öffnet die Bearbeitungsfunktion.<br>3. System lädt die bestehenden Werte.<br>4. Nutzer ändert die gewünschten Felder.<br>5. Nutzer speichert.<br>6. System validiert die Eingaben.<br>7. System persistiert die Änderungen. |
+| **Alternative Szenarien** | **Nutzer verlässt das Formular ohne Speichern:** Änderungen werden nicht persistiert. |
+| **Ausnahmeszenarien** | **Zugriff auf fremde Aufgabe:** System verweigert den Zugriff.<br><br>**Validierungsfehler:** Änderungen werden nicht gespeichert. |
+| **Qualitäten** | NFR-12-03 (Ownership). |
 
 ---
 
@@ -130,15 +130,15 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-06 |
 | **Name** | Aufgabe löschen |
-| **Beschreibung** | Studierender entfernt eine Aufgabe unwiderruflich aus dem System. |
-| **Auslöser** | Nutzer wählt „Löschen" auf einer Aufgabe. |
+| **Beschreibung** | Studierender entfernt eine eigene Aufgabe aus dem System. |
+| **Auslöser** | Nutzer wählt „Löschen“ bei einer Aufgabe. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert und gehört dem Nutzer. |
-| **Nachbedingung** | Aufgabe und zugehörige Lernsessions aus Datenbank entfernt; Lernplan neu berechnet. |
-| **Hauptszenario** | 1. Nutzer klickt „Löschen".<br> 2. System zeigt Bestätigungsdialog (irreversible Aktion). <br>3. Nutzer bestätigt.<br> 4. System löscht Aufgabe inkl. Subtasks und Learning Sessions. <br>5. Lernplan wird neu berechnet. |
-| **Alternative Szenarien** | *Nutzer bricht Bestätigung ab:* nichts verändert sich. |
-| **Ausnahmeszenarien** | *Zugriff auf fremde Aufgabe:* HTTP 403. |
-| **Qualitäten** | Kein Soft-Delete im MVP; Löschung ist permanent (P1, NG-07). |
+| **Vorbedingung** | Nutzer ist authentifiziert; Aufgabe existiert und gehört dem Nutzer. |
+| **Nachbedingung** | Aufgabe wurde gelöscht. Zugehörige abhängige Daten werden entsprechend der Persistenzregeln behandelt. |
+| **Hauptszenario** | 1. Nutzer wählt „Löschen“.<br>2. System fordert eine Bestätigung an.<br>3. Nutzer bestätigt.<br>4. System prüft die Ownership.<br>5. System löscht die Aufgabe. |
+| **Alternative Szenarien** | **Nutzer bricht die Bestätigung ab:** Keine Daten werden verändert. |
+| **Ausnahmeszenarien** | **Zugriff auf fremde Aufgabe:** System verweigert den Zugriff. |
+| **Qualitäten** | Die Löschung ist im aktuellen MVP dauerhaft. |
 
 ---
 
@@ -150,15 +150,15 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-07 |
 | **Name** | Dashboard anzeigen |
-| **Beschreibung** | Studierender erhält einen Sofortüberblick über dringende Aufgaben, Fortschritt und anstehende Deadlines. |
-| **Auslöser** | Nutzer öffnet die Anwendung nach dem Login oder navigiert zu `/`. |
+| **Beschreibung** | Studierender erhält einen Überblick über seine Aufgaben, Fortschritte und anstehende Deadlines. |
+| **Auslöser** | Nutzer öffnet das Dashboard. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung. |
-| **Nachbedingung** | Kein Zustandswechsel. |
-| **Hauptszenario** | 1. Nutzer öffnet Dashboard. <br>2. System lädt alle offenen Aufgaben des Nutzers.<br> 3. System berechnet Dringlichkeit je Aufgabe (UrgencyLevel: RED / YELLOW / GREEN).<br> 4. System zeigt Aufgabenkarten sortiert nach Deadline, mit Ampelfarbe und Fortschrittsbalken.<br> 5. System zeigt Zusammenfassung: „X Aufgaben diese Woche". |
-| **Alternative Szenarien** | *Nutzer hat keine Aufgaben:* leerer Zustand mit Hinweis „Neue Aufgabe anlegen". *Nutzer klickt auf Aufgabe:* navigiert zu Aufgabendetail. |
-| **Ausnahmeszenarien** | — |
-| **Qualitäten** | NFR-11-1 (Ladezeit < 2 s); NFR-15-1 (Responsive Design). Ampelregel: RED ≤ 3 Tage, YELLOW ≤ 7 Tage, GREEN > 7 Tage. |
+| **Vorbedingung** | Nutzer ist authentifiziert. |
+| **Nachbedingung** | Kein dauerhafter Zustandswechsel. |
+| **Hauptszenario** | 1. Nutzer öffnet das Dashboard.<br>2. System lädt die Aufgaben des authentifizierten Benutzers.<br>3. System stellt die relevanten Aufgabeninformationen bereit.<br>4. System zeigt Aufgabenkarten mit Fortschritt und Dringlichkeitsdarstellung.<br>5. Nutzer kann von dort zu weiteren Bereichen navigieren. |
+| **Alternative Szenarien** | **Keine Aufgaben vorhanden:** Das Dashboard zeigt einen geeigneten Leerzustand beziehungsweise eine Möglichkeit zum Anlegen einer neuen Aufgabe.<br><br>**Nutzer wählt eine Aufgabe:** Navigation zur Detailansicht. |
+| **Ausnahmeszenarien** | Fehler beim Laden der Daten werden dem Nutzer angezeigt. |
+| **Qualitäten** | NFR-11-01 (Dashboard-Ladezeit); NFR-15-01 (Responsive Nutzung). |
 
 ---
 
@@ -168,15 +168,15 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-08 |
 | **Name** | Lernplan anzeigen |
-| **Beschreibung** | Studierender sieht den automatisch generierten Wochenlernplan mit Aufgaben und empfohlenen täglichen Lernzeiten. |
-| **Auslöser** | Nutzer navigiert zu „Mein Lernplan". |
+| **Beschreibung** | Studierender sieht den automatisch berechneten Lernplan mit geplanten Aufgaben und empfohlenen Lernzeiten. |
+| **Auslöser** | Nutzer navigiert zum Lernplan. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; mindestens eine offene Aufgabe vorhanden. |
-| **Nachbedingung** | Kein Zustandswechsel. |
-| **Hauptszenario** | 1. Nutzer öffnet Lernplan-Ansicht.<br> 2. System berechnet aktuellen Plan (Priorisierungsalgorithmus, vgl. D2 `LearningPlanDTO`). <br>3. System zeigt Wochenansicht: je Tag eine Spalte mit empfohlenen Aufgaben und Minutenangabe.<br> 4. Nutzer kann mit Vor-/Zurück-Navigation zwischen Kalenderwochen wechseln. |
-| **Alternative Szenarien** | *Keine offenen Aufgaben:* leerer Zustand mit Hinweis. *Nutzer klickt „Plan neu berechnen":* System ruft `POST /api/v1/plan/recalculate` auf und aktualisiert die Ansicht. |
-| **Ausnahmeszenarien** | — |
-| **Qualitäten** | NFR-11-3 (Berechnung < 1 s); F-03-01 (Priorisierungsalgorithmus). |
+| **Vorbedingung** | Nutzer ist authentifiziert. |
+| **Nachbedingung** | Kein dauerhafter Zustandswechsel durch die Anzeige. |
+| **Hauptszenario** | 1. Nutzer öffnet die Lernplanansicht.<br>2. System berechnet beziehungsweise lädt die für den Benutzer relevanten Planinformationen.<br>3. System zeigt die Planinformationen nach Tagen.<br>4. Nutzer kann zwischen den dargestellten Wochen navigieren. |
+| **Alternative Szenarien** | **Keine offenen Aufgaben:** System zeigt einen geeigneten Leerzustand. |
+| **Ausnahmeszenarien** | Fehler bei der Planberechnung oder beim Laden der Planinformationen werden dem Nutzer angezeigt. |
+| **Qualitäten** | NFR-11-03 (Berechnungszeit); F3 (Lernplanberechnung). |
 
 ---
 
@@ -188,16 +188,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-09 |
 | **Name** | Lernfortschritt eintragen |
-| **Beschreibung** | Studierender aktualisiert den Fortschritt einer Aufgabe und protokolliert optional eine Lernsession; das System berechnet den Lernplan neu. |
-| **Auslöser** | Nutzer öffnet eine Aufgabe und trägt Fortschritt ein. |
+| **Beschreibung** | Studierender aktualisiert den Fortschritt einer eigenen Aufgabe und kann zusätzlich eine Lernsession erfassen. |
+| **Auslöser** | Nutzer öffnet eine Aufgabe und ändert den Fortschritt. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; Aufgabe im Status OPEN oder IN_PROGRESS. |
-| **Nachbedingung (Erfolg)** | Fortschritt persistiert; Status ggf. automatisch auf IN_PROGRESS oder DONE gesetzt; Lernplan neu berechnet. |
-| **Nachbedingung (Misserfolg)** | Ursprünglicher Fortschritt unverändert. |
-| **Hauptszenario** | 1. Nutzer öffnet Aufgabendetailansicht. <br>2. Nutzer bewegt Fortschritts-Schieberegler (0–100 %).<br> 3. Optional: Nutzer trägt Lerndauer (Minuten) und Notiz ein.<br> 4. Nutzer speichert. <br>5. System persistiert Fortschritt und ggf. neue LearningSession.<br> 6. System aktualisiert TaskStatus automatisch aus progressPercent. <br>7. System berechnet Lernplan neu. |
-| **Alternative Szenarien** | *Fortschritt = 100 %:* Aufgabe wird automatisch als DONE markiert; erscheint auf Dashboard ausgegraut. |
-| **Ausnahmeszenarien** | *Ungültige Minutenangabe (≤ 0):* Validierungsfehler; keine Session gespeichert. |
-| **Qualitäten** | AF-09 (LearningSession persistieren); Statusübergang folgt dynamisch dem progressPercent — Änderungen in beide Richtungen erlaubt (vgl. D2 TaskStatus). |
+| **Vorbedingung** | Nutzer ist authentifiziert; Aufgabe existiert und gehört dem Nutzer. |
+| **Nachbedingung (Erfolg)** | Fortschritt wurde gespeichert; der Status der Aufgabe wird entsprechend des Fortschritts aktualisiert. Eine optional erfasste Lernsession wird ebenfalls gespeichert. |
+| **Nachbedingung (Misserfolg)** | Ursprünglicher Fortschritt bleibt unverändert. |
+| **Hauptszenario** | 1. Nutzer öffnet die Aufgabendetailansicht.<br>2. Nutzer gibt einen Fortschritt zwischen 0 und 100 Prozent ein.<br>3. Optional gibt der Nutzer eine Lerndauer und Notiz ein.<br>4. Nutzer speichert.<br>5. System validiert die Eingaben.<br>6. System speichert den Fortschritt und gegebenenfalls die Lernsession.<br>7. Der Aufgabenstatus wird entsprechend des Fortschritts bestimmt. |
+| **Alternative Szenarien** | **Fortschritt wird verändert:** Der neue gültige Fortschritt wird gespeichert und der Status entsprechend angepasst. |
+| **Ausnahmeszenarien** | **Ungültige Lerndauer:** Die Eingabe wird zurückgewiesen und keine ungültige Lernsession gespeichert.<br><br>**Zugriff auf fremde Aufgabe:** System verweigert den Zugriff. |
+| **Qualitäten** | NFR-12-03 (Ownership); Validierung der Fortschritts- und Sessiondaten. |
 
 ---
 
@@ -209,16 +209,16 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-10 |
 | **Name** | Erinnerung konfigurieren |
-| **Beschreibung** | Studierender legt fest, wann und auf welchem Kanal er an eine bevorstehende Deadline erinnert werden möchte. |
-| **Auslöser** | Nutzer öffnet Einstellungen oder Aufgabendetail und wählt „Erinnerung". |
+| **Beschreibung** | Studierender konfiguriert eine Erinnerung zu einer eigenen Aufgabe. |
+| **Auslöser** | Nutzer verwendet die vorgesehene Funktion zur Konfiguration einer Erinnerung. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; Aufgabe existiert. |
-| **Nachbedingung (Erfolg)** | Erinnerungsregel gespeichert. |
-| **Nachbedingung (Misserfolg)** | Keine Änderung. |
-| **Hauptszenario** | 1. Nutzer öffnet Erinnerungskonfiguration. <br>2. Nutzer wählt Vorlaufzeit (Tage vor Deadline).<br> 3. Nutzer wählt Kanal (ReminderChannel: IN_APP / EMAIL / BOTH).<br> 4. Nutzer speichert.<br> 5. System persistiert Reminder-Eintrag. |
-| **Alternative Szenarien** | *Nutzer deaktiviert Erinnerung:* `active = false` gesetzt; keine Benachrichtigung mehr. |
-| **Ausnahmeszenarien** | *E-Mail-Kanal gewählt, aber SMTP nicht konfiguriert:* System zeigt Hinweis; speichert Regel trotzdem; E-Mail-Versand bleibt stumm bis SMTP konfiguriert ist. |
-| **Qualitäten** | F-06-01 bis F-06-04; NFR-12-4 (keine Secrets im Repo). |
+| **Vorbedingung** | Nutzer ist authentifiziert; die erforderliche Aufgabe existiert und gehört dem Nutzer. |
+| **Nachbedingung (Erfolg)** | Erinnerungsdaten wurden gespeichert. |
+| **Nachbedingung (Misserfolg)** | Keine Änderung an den bisherigen Erinnerungsdaten. |
+| **Hauptszenario** | 1. Nutzer öffnet die Erinnerungskonfiguration.<br>2. Nutzer gibt die erforderlichen Erinnerungsparameter ein.<br>3. Nutzer wählt einen verfügbaren Kanal aus `ReminderChannel`.<br>4. Nutzer speichert die Konfiguration.<br>5. System validiert und speichert die Erinnerungsdaten. |
+| **Alternative Szenarien** | **Erinnerung wird deaktiviert:** Die Erinnerung wird entsprechend der Konfiguration deaktiviert. |
+| **Ausnahmeszenarien** | **Ungültige Konfiguration:** System weist die Eingabe zurück und zeigt eine Fehlermeldung an. |
+| **Qualitäten** | Validierung der Erinnerungsdaten; Ownership der zugehörigen Aufgabe. |
 
 ---
 
@@ -230,36 +230,40 @@ Status-Legende: ✅ fertig · 🚧 in Arbeit · ⬜ offen.
 |-----------|--------|
 | **Bezeichner** | UC-11 |
 | **Name** | Kalenderexport |
-| **Beschreibung** | Studierender exportiert alle offenen Aufgaben als `.ics`-Datei zum Import in einen externen Kalender. |
-| **Auslöser** | Nutzer klickt „Als iCal exportieren" in den Einstellungen. |
+| **Beschreibung** | Studierender exportiert seine Aufgaben als `.ics`-Datei zum anschließenden Import in eine externe Kalenderanwendung. |
+| **Auslöser** | Nutzer startet den Kalenderexport. |
 | **Akteure** | Studierender (primär). |
-| **Vorbedingung** | Authentifizierte Sitzung; mindestens eine Aufgabe vorhanden. |
-| **Nachbedingung** | `.ics`-Datei wird vom Browser heruntergeladen; kein Zustandswechsel im System. |
-| **Hauptszenario** | 1. Nutzer klickt Export-Button.<br> 2. System generiert iCalendar-Datei (RFC 5545): VEVENT je Aufgabe mit DTSTART = Deadline, SUMMARY = Titel, DESCRIPTION = Beschreibung.<br> 3. Browser lädt Datei herunter. |
-| **Alternative Szenarien** | *Keine Aufgaben vorhanden:* leere, aber valide `.ics`-Datei wird heruntergeladen. |
-| **Ausnahmeszenarien** | — |
-| **Qualitäten** | Kompatibel mit Google Calendar, Apple Calendar, Thunderbird (RFC 5545); generiert durch AF-12. |
+| **Vorbedingung** | Nutzer ist authentifiziert. |
+| **Nachbedingung** | Eine `.ics`-Datei wird zum Download bereitgestellt; im StudyPlanner wird dadurch kein dauerhafter Zustand verändert. |
+| **Hauptszenario** | 1. Nutzer startet den Export.<br>2. System erzeugt eine iCalendar-Datei aus den Aufgaben des authentifizierten Benutzers.<br>3. System stellt die Datei zum Download bereit.<br>4. Nutzer kann die Datei anschließend manuell in eine Kalenderanwendung importieren. |
+| **Alternative Szenarien** | **Keine exportierbaren Aufgaben:** System erzeugt beziehungsweise liefert eine entsprechende gültige Kalenderdatei. |
+| **Ausnahmeszenarien** | Fehler bei der Erstellung oder Bereitstellung der Datei werden dem Nutzer angezeigt. |
+| **Qualitäten** | Verwendung des iCalendar-Formats (`.ics`). |
 
 ---
 
 ## F2.8 Außerhalb des Scope von F2
 
-- **JWT-Validierung und Ownership-Prüfung.** Querschnittskonzepte ohne Nutzer-Entscheidungspunkt — siehe N2.
-- **Lernplan-Berechnung.** Serverseitige Funktion ohne eigenen UC — siehe F3, AF-03.
-- **Erinnerungs-Scheduler.** Hintergrundjob ohne Nutzerinteraktion — siehe B2, F-06-02.
-- **Passwort zurücksetzen.** Nicht in MVP (P1, NG-08 implizit durch Scope-Beschränkung).
+Folgende Funktionen beziehungsweise technische Konzepte sind keine eigenständigen Use Cases, da sie keinen eigenen Nutzer-Zielzustand mit einem separaten Interaktionsszenario darstellen:
+
+- **JWT-Validierung und Ownership-Prüfung:** Querschnittliche Sicherheitskonzepte, siehe N2 und Architektur Kapitel 8.
+- **Lernplan-Berechnung:** Serverseitige Geschäftslogik, die im Zusammenhang mit UC-08 verwendet wird.
+- **Datenbankmigrationen:** Technischer Betriebs- und Entwicklungsprozess, kein Benutzer-Use-Case.
+- **Passwort zurücksetzen:** Nicht Bestandteil des aktuellen MVP-Umfangs.
+
+Ein eigenständiger zeitgesteuerter Reminder-Batch beziehungsweise ein verpflichtender täglicher Hintergrundjob ist im aktuellen Implementierungsstand kein eigenständiger Use Case.
 
 ---
 
 ## F2.9 Querverweise
 
 | Baustein | Relevanz für F2 |
-|----------|----------------|
-| F1 | Aktivitäten in GP-01 bis GP-03 werden durch UC-04 bis UC-09 realisiert. |
-| F3 | AF-01 (Lernplan-Berechnung) läuft in UC-04, UC-05, UC-06, UC-09; AF-02 (Ampel) in UC-07. |
-| D1 | Entitäten Task, LearningSession, Reminder werden durch UC-04–UC-10 gelesen und geschrieben. |
-| D2 | Statusmaschine TaskStatus (OPEN→IN_PROGRESS→DONE) steuert UC-09; UrgencyLevel steuert UC-07. |
-| B1 | Screen-Designs und Dialogfluss für jeden UC. |
-| S1 | REST-API-Endpunkte, die die UCs serverseitig realisieren. |
-| N1 | NFR-11-01 (Ladezeit Dashboard, UC-07); NFR-12-02 (JWT, UC-02); NFR-12-05 (Login-Fehlermeldung, UC-02); NFR-15-02 (Validierung, UC-04/05). |
-| N2 | Auth-Querschnittskonzept gilt als Vorbedingung für UC-02 bis UC-11. |
+|----------|-----------------|
+| F1 | Die in F1 beschriebenen Geschäftsprozesse werden durch die Use Cases der Aufgabenverwaltung, Planung und des Trackings unterstützt. |
+| F3 | Serverseitige Anwendungsfunktionen wie Lernplanberechnung und weitere Geschäftslogik unterstützen mehrere Use Cases. |
+| D1 | Die Entitäten `USER`, `TASK`, `SUBTASK`, `LEARNING_SESSION` und `REMINDER` werden durch die entsprechenden Use Cases verwendet. |
+| D2 | `TaskType`, `TaskStatus`, `UrgencyLevel` und `ReminderChannel` werden für die fachliche Verarbeitung und Darstellung verwendet. |
+| B1 | Die Screens und Dialoge konkretisieren die Benutzerinteraktion der Use Cases. |
+| S1 | Die REST-API-Endpunkte realisieren die serverseitigen Operationen der Use Cases. |
+| N1 | Die nichtfunktionalen Anforderungen definieren Qualitätsanforderungen unter anderem für Authentifizierung, Ownership, Validierung und Responsive Design. |
+| N2 | Authentifizierung und Autorisierung bilden querschnittliche Voraussetzungen für die geschützten Use Cases. |

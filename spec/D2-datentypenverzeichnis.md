@@ -1,6 +1,6 @@
 # D2 — Datentypenverzeichnis
 
-D2 ist das verbindliche Typenverzeichnis des Study Planers. Alle hier definierten Namen werden in D1 (Datenmodell), S1 (API), im Java-Backend und im TypeScript-Frontend identisch verwendet. Abweichungen im Code sind Fehler, keine Stilfrage (vgl. N2.6).
+D2 ist das verbindliche Typenverzeichnis des Study Planners. Alle hier definierten Namen werden in D1 (Datenmodell), S1 (API), im Java-Backend und im TypeScript-Frontend identisch verwendet. Abweichungen im Code sind Fehler, keine Stilfrage (vgl. N2.6).
 
 ---
 
@@ -11,10 +11,12 @@ D2 ist das verbindliche Typenverzeichnis des Study Planers. Alle hier definierte
 Gibt den Charakter einer Aufgabe an und steuert die Darstellung im UI sowie die Pflichtfelder im Formular.
 
 | Wert | Bedeutung | Typische Pflichtfelder |
-|------|-----------|----------------------|
+|------|-----------|------------------------|
 | `EXAM` | Institutionelle Prüfung (Klausur, mündlich) | Titel, Deadline, ggf. Gewichtung |
 | `ASSIGNMENT` | Abgabe mit harter Deadline | Titel, Deadline |
 | `GOAL` | Selbst gesetztes Lernziel | Titel, Zieldatum; ggf. Unteraufgaben |
+
+---
 
 ### `TaskStatus`
 
@@ -28,6 +30,8 @@ Wird ausschließlich durch AF-03 aus `progressPercent` abgeleitet — niemals di
 
 Statusübergänge: `OPEN → IN_PROGRESS → DONE`. Technisch ist eine Rückwärtsänderung möglich (Fortschritt verringern), aber kein eigenständiger UC.
 
+---
+
 ### `ReminderChannel`
 
 | Wert | Bedeutung |
@@ -35,6 +39,8 @@ Statusübergänge: `OPEN → IN_PROGRESS → DONE`. Technisch ist eine Rückwär
 | `IN_APP` | Nur In-App-Benachrichtigung |
 | `EMAIL` | Nur E-Mail (erfordert SMTP-Konfiguration) |
 | `BOTH` | In-App und E-Mail |
+
+---
 
 ### `UrgencyLevel`
 
@@ -50,7 +56,7 @@ Berechnetes, **nicht persistiertes** Attribut. Wird bei jedem Read serverseitig 
 
 ## D2.2 Transfer-Objekte (DTOs)
 
-Ein DTO (Data Transfer Object) ist ein Datenpaket das zwischen Frontend und Backend ausgetauscht wird. Es enthält nur Daten — keine Logik. Was das Frontend sendet und was das Backend antwortet ist hier verbindlich festgelegt.
+Ein DTO (Data Transfer Object) ist ein Datenpaket, das zwischen Frontend und Backend ausgetauscht wird. Es enthält nur Daten — keine Logik. Was das Frontend sendet und was das Backend antwortet, ist hier verbindlich festgelegt.
 
 ### `TaskDTO` (API-Antwort)
 
@@ -67,54 +73,8 @@ interface TaskDTO {
   progressPercent: number;   // ProgressPercent
   status: 'OPEN' | 'IN_PROGRESS' | 'DONE';  // TaskStatus
   weight: number;            // Weight
-  urgency: 'RED' | 'YELLOW' | 'GREEN';  // UrgencyLevel — berechnet
+  urgency: 'RED' | 'YELLOW' | 'GREEN';      // UrgencyLevel — berechnet
   subtasks: SubtaskDTO[];
   createdAt: string;         // ISO 8601 Timestamp
-  updatedAt: string;
+  updatedAt: string;         // ISO 8601 Timestamp
 }
-```
-
-### `CreateTaskRequest` (API-Eingabe)
-
-```typescript
-interface CreateTaskRequest {
-  title: string;          // Pflicht
-  type: TaskType;         // Pflicht
-  deadline: string;       // Pflicht (ISO 8601)
-  description?: string;
-  subject?: string;
-  estimatedHours?: number;  // Default: 0
-  weight?: number;          // Default: 1
-}
-```
-
-### `UpdateProgressRequest` (API-Eingabe)
-
-```typescript
-interface UpdateProgressRequest {
-  progressPercent: number;        // Pflicht; 0–100
-  sessionDurationMinutes?: number; // Optional; > 0
-  notes?: string;                  // Optional
-}
-```
-
-### `LearningPlanDTO` (API-Antwort)
-
-```typescript
-interface LearningPlanDTO {
-  generatedAt: string;        // ISO 8601 Timestamp
-  weekEntries: WeekEntryDTO[];
-}
-
-interface WeekEntryDTO {
-  date: string;               // ISO 8601 Datum (Montag der Woche)
-  tasks: PlanTaskDTO[];
-}
-
-interface PlanTaskDTO {
-  taskId: string;
-  title: string;
-  recommendedMinutes: number;
-  urgency: 'RED' | 'YELLOW' | 'GREEN';  // UrgencyLevel
-}
-```
