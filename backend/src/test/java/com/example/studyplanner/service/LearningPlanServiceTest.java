@@ -52,7 +52,7 @@ class LearningPlanServiceTest {
         LearningPlanDTO plan =
                 learningPlanService.generateLearningPlan(userId);
 
-        assertEquals(7, plan.weekEntries().size());
+        assertEquals(11, plan.weekEntries().size());
 
         for (var weekEntry : plan.weekEntries()) {
             assertEquals(1, weekEntry.tasks().size());
@@ -115,7 +115,7 @@ class LearningPlanServiceTest {
                         .tasks()
                         .get(0);
 
-        assertEquals(30, planTask.recommendedMinutes());
+        assertEquals(28, planTask.recommendedMinutes());
     }
 
     @Test

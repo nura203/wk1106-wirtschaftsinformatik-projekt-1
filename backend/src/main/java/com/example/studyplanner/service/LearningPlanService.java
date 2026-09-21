@@ -28,39 +28,66 @@ public class LearningPlanService {
     @Transactional(readOnly = true)
     public LearningPlanDTO generateLearningPlan(UUID userId) {
         LocalDate today = LocalDate.now();
-
         LocalDate monday = today.with(DayOfWeek.MONDAY);
 
         List<Task> tasks = taskRepository
                 .findByUserIdOrderByDeadlineAsc(userId)
                 .stream()
                 .filter(task -> task.getProgressPercent() < 100)
+                .filter(task -> !task.getDeadline().isBefore(today))
                 .sorted(
                         Comparator.comparingDouble(
-                                (Task task) ->
-                                        calculatePriority(task, today)
+                                (Task task) -> calculatePriority(task, today)
                         ).reversed()
                 )
                 .toList();
 
-        List<WeekEntryDTO> weekEntries =
-                new ArrayList<>();
+        LocalDate latestDeadline = tasks.stream()
+                .map(Task::getDeadline)
+                .max(LocalDate::compareTo)
+                .orElse(monday.plusDays(6));
 
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = monday.plusDays(i);
+        LocalDate endDate = latestDeadline.isAfter(monday.plusDays(6))
+                ? latestDeadline
+                : monday.plusDays(6);
+
+        List<WeekEntryDTO> weekEntries = new ArrayList<>();
+
+        LocalDate currentDate = monday;
+
+        while (!currentDate.isAfter(endDate)) {
+
+            /*
+             * Eine eigene finale Variable ist notwendig,
+             * damit sie innerhalb der Lambda-Ausdrücke verwendet
+             * werden kann.
+             */
+            final LocalDate planDate = currentDate;
 
             List<PlanTaskDTO> planTasks = tasks.stream()
+                    .filter(task ->
+                            shouldPlanTaskOnDate(
+                                    task,
+                                    planDate,
+                                    today
+                            )
+                    )
                     .map(task ->
-                            createPlanTask(task, today)
+                            createPlanTask(
+                                    task,
+                                    today
+                            )
                     )
                     .toList();
 
             weekEntries.add(
                     new WeekEntryDTO(
-                            date,
+                            planDate,
                             planTasks
                     )
             );
+
+            currentDate = currentDate.plusDays(1);
         }
 
         return new LearningPlanDTO(
@@ -74,6 +101,22 @@ public class LearningPlanService {
         return generateLearningPlan(userId);
     }
 
+    private boolean shouldPlanTaskOnDate(
+            Task task,
+            LocalDate date,
+            LocalDate today
+    ) {
+        /*
+         * Die Aufgabe wird ab heute bis einschließlich
+         * ihrer Deadline eingeplant.
+         */
+        if (date.isBefore(today)) {
+            return false;
+        }
+
+        return !date.isAfter(task.getDeadline());
+    }
+
     private PlanTaskDTO createPlanTask(
             Task task,
             LocalDate today
@@ -83,11 +126,10 @@ public class LearningPlanService {
                 ChronoUnit.DAYS.between(
                         today,
                         task.getDeadline()
-                )
+                ) + 1
         );
 
-        int estimatedHours =
-                task.getEstimatedHours();
+        int estimatedHours = task.getEstimatedHours();
 
         if (estimatedHours <= 0) {
             estimatedHours = 1;
@@ -101,12 +143,20 @@ public class LearningPlanService {
                                         / 100.0
                         );
 
+        /*
+         * Der verbleibende Aufwand wird gleichmäßig
+         * auf alle Tage bis einschließlich Deadline verteilt.
+         */
         double dailyEffort =
                 remainingEffort / remainingDays;
 
         int recommendedMinutes =
-                (int) Math.ceil(
-                        dailyEffort * 60
+                (int) Math.ceil(dailyEffort * 60);
+
+        recommendedMinutes =
+                Math.max(
+                        recommendedMinutes,
+                        1
                 );
 
         String urgency =
@@ -132,11 +182,10 @@ public class LearningPlanService {
                 ChronoUnit.DAYS.between(
                         today,
                         task.getDeadline()
-                )
+                ) + 1
         );
 
-        int estimatedHours =
-                task.getEstimatedHours();
+        int estimatedHours = task.getEstimatedHours();
 
         if (estimatedHours <= 0) {
             estimatedHours = 1;
