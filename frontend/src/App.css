@@ -20,7 +20,82 @@ body {
   color: #1f2937;
 }
 
-/* LOGIN / REGISTRIERUNG */
+/* ========================================
+   LAYOUT / NAVIGATION
+   ======================================== */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  padding: 0 12px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-title h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.sidebar-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 20px;
+}
+
+.sidebar-navigation a,
+.mobile-navigation a {
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 600;
+  border-radius: 8px;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.sidebar-navigation a {
+  display: block;
+  padding: 12px 14px;
+}
+
+.sidebar-navigation a:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.sidebar-navigation a.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.mobile-navigation {
+  display: none;
+}
+
+/* ========================================
+   LOGIN / REGISTRIERUNG
+   ======================================== */
 
 .auth-page {
   min-height: 100vh;
@@ -125,7 +200,9 @@ body {
   font-size: 14px;
 }
 
-/* DASHBOARD */
+/* ========================================
+   DASHBOARD
+   ======================================== */
 
 .dashboard {
   min-height: 100vh;
@@ -181,9 +258,51 @@ body {
   color: #4b5563;
 }
 
-/* MOBILE */
+/* ========================================
+   MOBILE
+   ======================================== */
 
 @media (max-width: 700px) {
+  .app-layout {
+    display: block;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    padding-bottom: 76px;
+  }
+
+  .mobile-navigation {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: space-around;
+    gap: 4px;
+
+    padding: 10px 8px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .mobile-navigation a {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+
+  .mobile-navigation a.active {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
   .auth-page {
     padding: 16px;
   }

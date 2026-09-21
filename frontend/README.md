@@ -1,16 +1,32 @@
-# React + Vite
+# StudyPlanner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+StudyPlanner ist eine Webanwendung zur Planung und Organisation von Lernaktivitäten.
 
-Currently, two official plugins are available:
+Die Anwendung unterstützt Studierende dabei, Lerninhalte und Aufgaben zu verwalten, Lernfortschritte zu dokumentieren und einen strukturierten Lernplan zu erstellen.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Projektstruktur
 
-## React Compiler
+Das Repository ist unter anderem in folgende Bereiche aufgeteilt:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `frontend/` – React-Frontend der Anwendung
+- `backend/` – Spring-Boot-Backend
+- `spec/` – Spezifikationsdokumente
+- `arch/` – Beschreibung der Softwarearchitektur
+- `INSTALL.md` – Installations- und Inbetriebnahmeanleitung
+- `TEAMINFO.md` – Informationen zum Projektteam
 
-## Expanding the ESLint configuration
+## Voraussetzungen
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Für die lokale Ausführung werden benötigt:
+
+- Docker Desktop
+- Git
+
+Die Anwendung wird mit Docker Compose gestartet.
+
+## Anwendung starten
+
+1. Repository klonen:
+
+   ```bash
+   git clone https://github.com/nura203/wk1106-wirtschaftsinformatik-projekt-1.git

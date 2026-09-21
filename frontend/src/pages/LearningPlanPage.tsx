@@ -136,6 +136,20 @@ function getUrgencyStyles(
   }
 }
 
+function getUrgencyLabel(
+  urgency: UrgencyLevel,
+): string {
+  if (urgency === 'RED') {
+    return 'Dringend'
+  }
+
+  if (urgency === 'YELLOW') {
+    return 'Mittel'
+  }
+
+  return 'Nicht dringend'
+}
+
 export default function LearningPlanPage() {
   const [plan, setPlan] =
     useState<LearningPlanDTO | null>(null)
@@ -426,7 +440,9 @@ export default function LearningPlanPage() {
                                   fontWeight: 500,
                                 }}
                               >
-                                {task.urgency}
+                                {getUrgencyLabel(
+                                  task.urgency,
+                                )}
                               </div>
                             </div>
                           )

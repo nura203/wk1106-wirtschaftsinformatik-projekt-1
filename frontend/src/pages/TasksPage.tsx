@@ -2,6 +2,55 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getTasks, type Task } from "../services/api";
 
+function getTaskTypeLabel(type: Task["type"]): string {
+  switch (type) {
+    case "ASSIGNMENT":
+      return "Aufgabe";
+    case "EXAM":
+      return "Prüfung";
+    case "GOAL":
+      return "Ziel";
+    default:
+      return type;
+  }
+}
+
+function getStatusLabel(status: Task["status"]): string {
+  switch (status) {
+    case "OPEN":
+      return "Offen";
+    case "IN_PROGRESS":
+      return "In Bearbeitung";
+    case "DONE":
+      return "Erledigt";
+    default:
+      return status;
+  }
+}
+
+function getUrgencyLabel(urgency: Task["urgency"]): string {
+  switch (urgency) {
+    case "RED":
+      return "Dringend";
+    case "YELLOW":
+      return "Mittel";
+    case "GREEN":
+      return "Nicht dringend";
+    default:
+      return urgency;
+  }
+}
+
+function formatDate(date: string): string {
+  const parsedDate = new Date(`${date}T00:00:00`);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return date;
+  }
+
+  return new Intl.DateTimeFormat("de-DE").format(parsedDate);
+}
+
 function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,15 +108,25 @@ function TasksPage() {
                 <h2>{task.title}</h2>
 
                 <div className="task-info">
-                  <span>Typ: {task.type}</span>
+                  <span>
+                    Typ: {getTaskTypeLabel(task.type)}
+                  </span>
 
-                  <span>Deadline: {task.deadline}</span>
+                  <span>
+                    Deadline: {formatDate(task.deadline)}
+                  </span>
 
-                  <span>Fortschritt: {task.progressPercent}%</span>
+                  <span>
+                    Fortschritt: {task.progressPercent}%
+                  </span>
 
-                  <span>Status: {task.status}</span>
+                  <span>
+                    Status: {getStatusLabel(task.status)}
+                  </span>
 
-                  <span>Dringlichkeit: {task.urgency}</span>
+                  <span>
+                    Dringlichkeit: {getUrgencyLabel(task.urgency)}
+                  </span>
                 </div>
 
                 <div className="progress-bar">
@@ -83,9 +142,13 @@ function TasksPage() {
                 </div>
 
                 <p className="task-hint">
-                  <Link to={`/tasks/${task.id}`}>Details öffnen</Link>
+                  <Link to={`/tasks/${task.id}`}>
+                    Details öffnen
+                  </Link>
                   {" · "}
-                  <Link to={`/tasks/${task.id}/edit`}>Bearbeiten</Link>
+                  <Link to={`/tasks/${task.id}/edit`}>
+                    Bearbeiten
+                  </Link>
                 </p>
               </article>
             ))}
