@@ -1,24 +1,49 @@
-# Study Planer
+# StudyPlanner
 
-Eine webbasierte Anwendung, die Studierende bei der strukturierten Planung von Prüfungen, Abgaben und Lernzielen unterstützt. Das System erstellt automatisch einen priorisierten Lernplan und erinnert rechtzeitig an bevorstehende Deadlines.
+StudyPlanner ist eine Webanwendung zur Planung und Verwaltung von Lernaufgaben.
 
-## Technologien
+## Voraussetzungen
 
-React · TypeScript · Spring Boot · Java 21 · PostgreSQL · Docker Compose
+- Git
+- Docker Desktop mit Docker Compose
 
-## Anwendung starten
+## Projekt starten
 
-```bash
-git clone https://github.com/nura203/wk1106-wirtschaftsinformatik-projekt-1.git
+Repository klonen und in den Projektordner wechseln:
+
+```powershell
+git clone <REPOSITORY-URL>
 cd wk1106-wirtschaftsinformatik-projekt-1
-cp .env.example .env
+```
+
+Anwendung starten:
+
+```powershell
 docker compose up --build
 ```
 
-Danach erreichbar unter:
+Danach:
+
 - Frontend: http://localhost:5173
-- Backend-API: http://localhost:8080/api/v1
+- Backend: http://localhost:8080
+
+## Anwendung beenden
+
+```powershell
+docker compose down
+```
+
+## Tests
+
+Backend-Tests:
+
+```powershell
+cd backend
+mvn test
+```
 
 ## Dokumentation
 
-Die Spezifikation findet sich unter [docs/spec/E1-leseanleitung.md](docs/spec/E1-leseanleitung.md)
+- `INSTALL.md` – Installation und Betrieb
+- `spec/` – Spezifikation
+- `arch/` – Architekturdokumentation
