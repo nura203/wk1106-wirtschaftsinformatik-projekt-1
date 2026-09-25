@@ -16,10 +16,10 @@ das Problem unübersichtlicher Selbstorganisation.
 | Name | Studiengang | Rolle |
 |---|---|---|
 | Nura Abu Mraheil                   | WI B.Sc. | Projektleiter:in          |
-| Sevgi Bolat                        | WI B.Sc. | Software Architect        |
-| Alina Haidary                      | WI B.Sc. | Spec/Requirements Lead    |
-| Jassmin Khalil                     | WI B.Sc. | Implementation Lead       |
-| Salma Al Habdallaui El Bachiri     | WI B.Sc. | Spec/Requirements Lead    |
+| Salma Al Habdallaui El Bachiri                       | WI B.Sc. | Software Architect        |
+| Sevgi Bolat                     | WI B.Sc. | Spec/Requirements Lead    |
+| Alina Haidary                      | WI B.Sc. | Implementation Lead       |
+| Jassmin Khalil    | WI B.Sc. | Spec/Requirements Lead    |
 | Ferdaouss Ben Amran                | WI B.Sc. | QA/Test Lead              |
 
 > **Datenschutz-Hinweis:** Im öffentlichen Repository erscheinen hier ausschließlich Name, Studiengang und Rolle. **Keine** Matrikel-Nummern, **keine** privaten Telefonnummern, **keine** individuellen E-Mail-Adressen. Die **vollständige Mitgliederliste** mit Matrikel-Nummern und THM-E-Mails wird durch die/den Projektleiter:in **per Mail** an den Betreuer übermittelt — spätestens zu **M0+**, bei Änderungen aktualisiert spätestens zur **M3**-Abgabe.
